@@ -1,0 +1,86 @@
+model Department {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  programs    Program[]
+  courses     Course[]
+  instructors Instructor[]
+
+  @@map("departments")
+}
+
+model Program {
+  id                 String     @id @default(uuid())
+  code               String     @unique
+  name               String
+  departmentId       String
+  department         Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  degreeType         String
+  totalCredits       Int
+  maxSemesterCredits Int        @default(21)
+  isActive           Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  programCourses ProgramCourse[]
+  students       Student[]
+
+  @@index([departmentId])
+  @@map("programs")
+}
+
+model Course {
+  id           String     @id @default(uuid())
+  code         String     @unique
+  title        String
+  credit       Int
+  courseLevel  Int        @default(100)
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  programCourses  ProgramCourse[]
+  prerequisites   CoursePrerequisite[] @relation("CoursePrerequisites")
+  prerequisiteFor CoursePrerequisite[] @relation("CoursePrerequisiteFor")
+  sections        Section[]
+
+  @@index([departmentId])
+  @@map("courses")
+}
+
+model ProgramCourse {
+  id                  String   @id @default(uuid())
+  programId           String
+  program             Program  @relation(fields: [programId], references: [id], onDelete: Restrict)
+  courseId            String
+  course              Course   @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  recommendedSemester Int
+  isOptional          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@unique([programId, courseId])
+  @@index([programId])
+  @@index([courseId])
+  @@map("program_courses")
+}
+
+model CoursePrerequisite {
+  id             String   @id @default(uuid())
+  courseId       String
+  course         Course   @relation("CoursePrerequisites", fields: [courseId], references: [id], onDelete: Cascade)
+  prerequisiteId String
+  prerequisite   Course   @relation("CoursePrerequisiteFor", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+  minGradePoint  Float    @default(2.0)
+  createdAt      DateTime @default(now())
+
+  @@unique([courseId, prerequisiteId])
+  @@index([courseId])
+  @@index([prerequisiteId])
+  @@map("course_prerequisites")
+}

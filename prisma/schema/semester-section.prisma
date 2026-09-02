@@ -1,0 +1,65 @@
+model AcademicSemester {
+  id                String         @id @default(uuid())
+  year              Int
+  term              SemesterTerm
+  status            SemesterStatus @default(DRAFT)
+  registrationStart DateTime
+  registrationEnd   DateTime
+  classStart        DateTime
+  classEnd          DateTime
+  resultDate        DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  students Student[]
+  sections Section[]
+  invoices FeeInvoice[]
+
+  @@unique([year, term])
+  @@index([status])
+  @@map("academic_semesters")
+}
+
+model Section {
+  id            String        @id @default(uuid())
+  courseId      String
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  semesterId    String
+  semester      AcademicSemester @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  instructorId  String
+  instructor    Instructor    @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+  sectionNumber Int
+  capacity      Int
+  enrolledCount Int           @default(0)
+  status        SectionStatus @default(OPEN)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  schedules          SectionSchedule[]
+  enrollments        Enrollment[]
+  attendanceSessions AttendanceSession[]
+  exams              Exam[]
+
+  @@unique([courseId, semesterId, sectionNumber])
+  @@index([semesterId])
+  @@index([courseId])
+  @@index([instructorId])
+  @@index([status])
+  @@map("sections")
+}
+
+model SectionSchedule {
+  id        String   @id @default(uuid())
+  sectionId String
+  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  room      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sectionId])
+  @@index([dayOfWeek, startTime, endTime])
+  @@map("section_schedules")
+}
