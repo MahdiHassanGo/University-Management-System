@@ -1,0 +1,50 @@
+model Exam {
+  id               String     @id @default(uuid())
+  sectionId        String
+  section          Section    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title            String
+  totalMarks       Float
+  weightPercentage Float
+  heldAt           DateTime?
+  status           ExamStatus @default(DRAFT)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  results ExamResult[]
+
+  @@index([sectionId])
+  @@index([status])
+  @@map("exams")
+}
+
+model ExamResult {
+  id        String   @id @default(uuid())
+  examId    String
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  marks     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([examId, studentId])
+  @@index([examId])
+  @@index([studentId])
+  @@map("exam_results")
+}
+
+model CourseResult {
+  id                String       @id @default(uuid())
+  enrollmentId      String       @unique
+  enrollment        Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  totalMarks        Float
+  letterGrade       String
+  gradePoint        Float
+  publicationStatus ResultStatus @default(DRAFT)
+  publishedAt       DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([publicationStatus])
+  @@map("course_results")
+}

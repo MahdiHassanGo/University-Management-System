@@ -1,0 +1,20 @@
+model Enrollment {
+  id         String           @id @default(uuid())
+  studentId  String
+  student    Student          @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  sectionId  String
+  section    Section          @relation(fields: [sectionId], references: [id], onDelete: Restrict)
+  status     EnrollmentStatus @default(ENROLLED)
+  enrolledAt DateTime         @default(now())
+  droppedAt  DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  courseResult CourseResult?
+
+  @@unique([studentId, sectionId])
+  @@index([studentId])
+  @@index([sectionId])
+  @@index([status])
+  @@map("enrollments")
+}
