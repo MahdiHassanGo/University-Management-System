@@ -1,7 +1,8 @@
-import type { Server } from 'node:http';
-import app from './app.js';
+import type { Server } from "node:http";
+import config from "./app/config/index.js";
+import app from "./app.js";
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.PORT;
 
 let server: Server;
 
@@ -11,15 +12,15 @@ async function main() {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
-    console.error('Failed to start server:', err);
+    console.error("Failed to start server:", err);
     process.exit(1);
   }
 }
 
 main();
 
-process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Rejection detected:', error);
+process.on("unhandledRejection", (error) => {
+  console.error("Unhandled Rejection detected:", error);
   if (server) {
     server.close(() => {
       process.exit(1);
@@ -29,7 +30,7 @@ process.on('unhandledRejection', (error) => {
   }
 });
 
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception detected:', error);
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception detected:", error);
   process.exit(1);
 });

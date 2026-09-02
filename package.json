@@ -7,7 +7,11 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "lint:check": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format:check": "biome format .",
+    "format:fix": "biome check --write ."
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
@@ -17,6 +21,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.11",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
