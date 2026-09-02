@@ -1,0 +1,22 @@
+model User {
+  id                 String       @id @default(uuid())
+  email              String       @unique
+  password           String?
+  googleId           String?      @unique
+  role               Role
+  status             UserStatus   @default(ACTIVE)
+  provider           AuthProvider @default(CREDENTIALS)
+  emailVerified      Boolean      @default(false)
+  needPasswordChange Boolean      @default(false)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  student       Student?
+  instructor    Instructor?
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([role, status])
+  @@index([email])
+  @@map("users")
+}
