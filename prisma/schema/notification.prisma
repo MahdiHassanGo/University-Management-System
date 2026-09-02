@@ -1,0 +1,31 @@
+model Notification {
+  id              String    @id @default(uuid())
+  recipientId     String
+  recipient       User      @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  title           String
+  message         String
+  type            String
+  relatedEntityId String?
+  readAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([recipientId])
+  @@index([readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}

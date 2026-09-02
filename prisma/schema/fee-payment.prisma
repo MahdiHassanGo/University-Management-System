@@ -1,0 +1,41 @@
+model FeeInvoice {
+  id            String        @id @default(uuid())
+  invoiceNumber String        @unique
+  studentId     String
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  semesterId    String
+  semester      AcademicSemester @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  amount        Float
+  dueDate       DateTime
+  status        InvoiceStatus @default(UNPAID)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  payments Payment[]
+
+  @@index([studentId])
+  @@index([semesterId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("fee_invoices")
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  invoiceId             String
+  invoice               FeeInvoice    @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  amount                Float
+  gateway               String        @default("BKASH")
+  merchantInvoiceNumber String        @unique
+  bkashPaymentID        String?
+  trxID                 String?       @unique
+  status                PaymentStatus @default(PENDING)
+  gatewayResponse       Json?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([invoiceId])
+  @@index([status])
+  @@index([trxID])
+  @@map("payments")
+}
