@@ -2,8 +2,13 @@ import bcrypt from "bcryptjs";
 import config from "../../config/index.js";
 import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
-import { createToken } from "../../utils/jwt.js";
-import type { ILoginUser, ILoginUserResponse, IRegisterStudent } from "./auth.interface.js";
+import { createToken, verifyToken } from "../../utils/jwt.js";
+import type {
+  ILoginUser,
+  ILoginUserResponse,
+  IRefreshTokenResponse,
+  IRegisterStudent,
+} from "./auth.interface.js";
 
 const registerStudentIntoDB = async (payload: IRegisterStudent) => {
   const { email, password, name, programId, admissionSemesterId, gender, contactNo } = payload;
@@ -133,7 +138,51 @@ const loginUserFromDB = async (payload: ILoginUser): Promise<ILoginUserResponse>
   };
 };
 
+const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
+  let verifiedToken = null;
+  try {
+    verifiedToken = verifyToken(token, config.JWT_REFRESH_SECRET);
+  } catch (_err) {
+    throw new AppError(401, "Invalid or expired refresh token");
+  }
+
+  const { userId } = verifiedToken;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+
+  if (user.status === "BLOCKED") {
+    throw new AppError(403, "Your account is blocked.");
+  }
+
+  if (user.status === "DELETED") {
+    throw new AppError(403, "Your account has been deleted.");
+  }
+
+  const jwtPayload = {
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const newAccessToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET,
+    config.JWT_ACCESS_EXPIRES_IN,
+  );
+
+  return {
+    accessToken: newAccessToken,
+  };
+};
+
 export const AuthService = {
   registerStudentIntoDB,
   loginUserFromDB,
+  refreshToken,
 };

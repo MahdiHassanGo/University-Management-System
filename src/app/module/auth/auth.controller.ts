@@ -36,7 +36,36 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const { refreshToken: token } = req.cookies;
+  const result = await AuthService.refreshToken(token);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Access token retrieved successfully",
+    data: result,
+  });
+});
+
+const logoutUser = catchAsync(async (_req: Request, res: Response) => {
+  res.clearCookie("refreshToken", {
+    secure: config.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+  });
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User logged out successfully",
+    data: null,
+  });
+});
+
 export const AuthController = {
   registerStudent,
   loginUser,
+  refreshToken,
+  logoutUser,
 };
