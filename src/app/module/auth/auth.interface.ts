@@ -22,3 +22,9 @@ export type ILoginUserResponse = {
 export type IRefreshTokenResponse = {
   accessToken: string;
 };
+
+export type IGoogleLogin = {
+  idToken: string;
+  programId?: string;
+  admissionSemesterId?: string;
+};

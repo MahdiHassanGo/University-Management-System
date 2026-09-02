@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
 import config from "../../config/index.js";
+import { verifyGoogleIdToken } from "../../lib/googleAuth.js";
 import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import { createToken, verifyToken } from "../../utils/jwt.js";
 import type {
+  IGoogleLogin,
   ILoginUser,
   ILoginUserResponse,
   IRefreshTokenResponse,
@@ -181,8 +183,119 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   };
 };
 
+const googleLoginFromDB = async (payload: IGoogleLogin): Promise<ILoginUserResponse> => {
+  const googleUser = await verifyGoogleIdToken(payload.idToken);
+  const { email, name, googleId } = googleUser;
+
+  let user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: email.toLowerCase() }, { googleId }],
+    },
+  });
+
+  if (user) {
+    if (user.status === "BLOCKED") {
+      throw new AppError(403, "Your account is blocked.");
+    }
+    if (user.status === "DELETED") {
+      throw new AppError(403, "Your account has been deleted.");
+    }
+
+    if (!user.googleId) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { googleId, emailVerified: true },
+      });
+    }
+  } else {
+    let programId = payload.programId;
+    let admissionSemesterId = payload.admissionSemesterId;
+
+    if (!programId) {
+      const defaultProgram = await prisma.program.findFirst({
+        where: { isActive: true },
+      });
+      if (!defaultProgram) {
+        throw new AppError(
+          400,
+          "No active program available for Google student self-provisioning.",
+        );
+      }
+      programId = defaultProgram.id;
+    }
+
+    if (!admissionSemesterId) {
+      const defaultSemester = await prisma.academicSemester.findFirst({
+        where: { status: "REGISTRATION_OPEN" },
+      });
+      if (!defaultSemester) {
+        throw new AppError(
+          400,
+          "No open academic semester available for Google student self-provisioning.",
+        );
+      }
+      admissionSemesterId = defaultSemester.id;
+    }
+
+    user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email: email.toLowerCase(),
+          googleId,
+          role: "STUDENT",
+          status: "ACTIVE",
+          provider: "GOOGLE",
+          emailVerified: true,
+        },
+      });
+
+      const studentCount = await tx.student.count();
+      const currentYear = new Date().getFullYear();
+      const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
+
+      await tx.student.create({
+        data: {
+          studentId,
+          userId: newUser.id,
+          name,
+          programId: programId as string,
+          admissionSemesterId: admissionSemesterId as string,
+          academicStatus: "ACTIVE",
+        },
+      });
+
+      return newUser;
+    });
+  }
+
+  const jwtPayload = {
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET,
+    config.JWT_ACCESS_EXPIRES_IN,
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.JWT_REFRESH_SECRET,
+    config.JWT_REFRESH_EXPIRES_IN,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+    needPasswordChange: user.needPasswordChange,
+  };
+};
+
 export const AuthService = {
   registerStudentIntoDB,
   loginUserFromDB,
   refreshToken,
+  googleLoginFromDB,
 };

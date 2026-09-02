@@ -63,9 +63,31 @@ const logoutUser = catchAsync(async (_req: Request, res: Response) => {
   });
 });
 
+const googleLogin = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.googleLoginFromDB(req.body);
+  const { refreshToken, accessToken, needPasswordChange } = result;
+
+  res.cookie("refreshToken", refreshToken, {
+    secure: config.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+  });
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Google login successful",
+    data: {
+      accessToken,
+      needPasswordChange,
+    },
+  });
+});
+
 export const AuthController = {
   registerStudent,
   loginUser,
   refreshToken,
   logoutUser,
+  googleLogin,
 };

@@ -27,8 +27,17 @@ const refreshTokenValidationSchema = z.object({
   }),
 });
 
+const googleLoginValidationSchema = z.object({
+  body: z.object({
+    idToken: z.string().min(1, "Google ID token is required"),
+    programId: z.string().uuid("Invalid program ID").optional(),
+    admissionSemesterId: z.string().uuid("Invalid admission semester ID").optional(),
+  }),
+});
+
 export const AuthValidation = {
   registerStudentValidationSchema,
   loginUserValidationSchema,
   refreshTokenValidationSchema,
+  googleLoginValidationSchema,
 };
