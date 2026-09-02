@@ -8,12 +8,14 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "postinstall": "prisma generate --schema=prisma/schema",
     "lint:check": "biome check .",
     "lint:fix": "biome check --write .",
     "format:check": "biome format .",
     "format:fix": "biome check --write ."
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -26,6 +28,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.5.4",
+    "prisma": "^5.22.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"
   }

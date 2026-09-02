@@ -1,0 +1,89 @@
+enum Role {
+  SUPER_ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum AcademicStatus {
+  ACTIVE
+  SUSPENDED
+  GRADUATED
+  INACTIVE
+}
+
+enum SemesterTerm {
+  SPRING
+  SUMMER
+  FALL
+}
+
+enum SemesterStatus {
+  DRAFT
+  REGISTRATION_OPEN
+  ONGOING
+  COMPLETED
+}
+
+enum SectionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  COMPLETED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  DROPPED
+  COMPLETED
+  FAILED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+enum ExamStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+}
+
+enum ResultStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
