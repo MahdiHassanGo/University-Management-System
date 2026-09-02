@@ -5,6 +5,7 @@ import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import { createToken, verifyToken } from "../../utils/jwt.js";
 import type {
+  IChangePassword,
   IGoogleLogin,
   ILoginUser,
   ILoginUserResponse,
@@ -293,9 +294,110 @@ const googleLoginFromDB = async (payload: IGoogleLogin): Promise<ILoginUserRespo
   };
 };
 
+const getMeFromDB = async (userId: string, role: string) => {
+  let profile = null;
+
+  if (role === "STUDENT") {
+    profile = await prisma.student.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            provider: true,
+            emailVerified: true,
+            createdAt: true,
+          },
+        },
+        program: {
+          include: {
+            department: true,
+          },
+        },
+        admissionSemester: true,
+      },
+    });
+  } else if (role === "INSTRUCTOR") {
+    profile = await prisma.instructor.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            provider: true,
+            emailVerified: true,
+            createdAt: true,
+          },
+        },
+        department: true,
+      },
+    });
+  } else {
+    profile = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        provider: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  if (!profile) {
+    throw new AppError(404, "User profile not found");
+  }
+
+  return profile;
+};
+
+const changePasswordInDB = async (userId: string, payload: IChangePassword) => {
+  const { oldPassword, newPassword } = payload;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+
+  if (!user.password) {
+    throw new AppError(400, "Social login users cannot change password");
+  }
+
+  const isPasswordMatched = await bcrypt.compare(oldPassword, user.password);
+  if (!isPasswordMatched) {
+    throw new AppError(400, "Old password does not match");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, config.BCRYPT_SALT_ROUNDS);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+
+  return null;
+};
+
 export const AuthService = {
   registerStudentIntoDB,
   loginUserFromDB,
   refreshToken,
   googleLoginFromDB,
+  getMeFromDB,
+  changePasswordInDB,
 };

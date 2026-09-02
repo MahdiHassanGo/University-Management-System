@@ -1,4 +1,5 @@
 import { Router } from "express";
+import checkAuth from "../../middleware/checkAuth.js";
 import validateRequest from "../../middleware/validateRequest.js";
 import { AuthController } from "./auth.controller.js";
 import { AuthValidation } from "./auth.validation.js";
@@ -29,6 +30,15 @@ router.post(
   "/google",
   validateRequest(AuthValidation.googleLoginValidationSchema),
   AuthController.googleLogin,
+);
+
+router.get("/me", checkAuth("SUPER_ADMIN", "INSTRUCTOR", "STUDENT"), AuthController.getMe);
+
+router.post(
+  "/change-password",
+  checkAuth("SUPER_ADMIN", "INSTRUCTOR", "STUDENT"),
+  validateRequest(AuthValidation.changePasswordValidationSchema),
+  AuthController.changePassword,
 );
 
 export const AuthRoutes = router;

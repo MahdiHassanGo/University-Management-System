@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import config from "../../config/index.js";
+import AppError from "../../utils/AppError.js";
 import catchAsync from "../../utils/catchAsync.js";
 import sendResponse from "../../utils/sendResponse.js";
 import { AuthService } from "./auth.service.js";
@@ -84,10 +85,42 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(401, "Unauthorized");
+  }
+  const { userId, role } = req.user;
+  const result = await AuthService.getMeFromDB(userId, role);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User profile retrieved successfully",
+    data: result,
+  });
+});
+
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError(401, "Unauthorized");
+  }
+  const { userId } = req.user;
+  await AuthService.changePasswordInDB(userId, req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Password changed successfully",
+    data: null,
+  });
+});
+
 export const AuthController = {
   registerStudent,
   loginUser,
   refreshToken,
   logoutUser,
   googleLogin,
+  getMe,
+  changePassword,
 };

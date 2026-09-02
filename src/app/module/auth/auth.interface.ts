@@ -28,3 +28,8 @@ export type IGoogleLogin = {
   programId?: string;
   admissionSemesterId?: string;
 };
+
+export type IChangePassword = {
+  oldPassword: string;
+  newPassword: string;
+};
