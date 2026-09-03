@@ -2,6 +2,7 @@ import { Router } from "express";
 import { AuthRoutes } from "../module/auth/auth.route.js";
 import { CourseRoutes } from "../module/course/course.route.js";
 import { DepartmentRoutes } from "../module/department/department.route.js";
+import { EnrollmentRoutes } from "../module/enrollment/enrollment.route.js";
 import { InstructorRoutes } from "../module/instructor/instructor.route.js";
 import { ProgramRoutes } from "../module/program/program.route.js";
 import { SectionRoutes } from "../module/section/section.route.js";
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: "/sections",
     route: SectionRoutes,
+  },
+  {
+    path: "/enrollments",
+    route: EnrollmentRoutes,
   },
 ];
 
