@@ -1,0 +1,382 @@
+{
+  "info": {
+    "name": "University Management System API",
+    "description": "Complete REST API Postman Collection for University Management System featuring Express 5, Prisma, bKash Payment Integration, and 3-Role Authorization (SUPER_ADMIN, INSTRUCTOR, STUDENT).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 Auth",
+      "item": [
+        {
+          "name": "Register Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student1@univ.edu\",\n  \"password\": \"Password123!\",\n  \"name\": \"John Student\",\n  \"programId\": \"{{programId}}\",\n  \"admissionSemesterId\": \"{{semesterId}}\",\n  \"gender\": \"MALE\",\n  \"contactNo\": \"01700000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Super Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@univ.edu\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Users",
+      "item": [
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Departments",
+      "item": [
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CSE\",\n  \"name\": \"Computer Science and Engineering\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Get All Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Programs",
+      "item": [
+        {
+          "name": "Create Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"BSCSE\",\n  \"name\": \"Bachelor of Science in CSE\",\n  \"departmentId\": \"{{departmentId}}\",\n  \"degreeType\": \"BACHELORS\",\n  \"totalCredits\": 140,\n  \"maxSemesterCredits\": 21\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/programs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "programs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Courses and Prerequisites",
+      "item": [
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CSE101\",\n  \"title\": \"Structured Programming\",\n  \"credit\": 3,\n  \"departmentId\": \"{{departmentId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Semesters",
+      "item": [
+        {
+          "name": "Create Semester",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"year\": 2026,\n  \"term\": \"FALL\",\n  \"registrationStart\": \"2026-09-01T00:00:00.000Z\",\n  \"registrationEnd\": \"2026-09-30T23:59:59.000Z\",\n  \"classStart\": \"2026-10-01T00:00:00.000Z\",\n  \"classEnd\": \"2026-12-31T23:59:59.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/semesters",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "semesters"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Sections",
+      "item": [
+        {
+          "name": "Create Section",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"semesterId\": \"{{semesterId}}\",\n  \"instructorId\": \"{{instructorId}}\",\n  \"sectionNumber\": 1,\n  \"capacity\": 30,\n  \"schedules\": [\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"10:30\",\n      \"room\": \"UB101\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sections"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Enrollments",
+      "item": [
+        {
+          "name": "Enroll in Section",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": \"{{sectionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "enrollments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Attendance",
+      "item": [
+        {
+          "name": "Get My Attendance",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/attendance/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "attendance", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Exams and Results",
+      "item": [
+        {
+          "name": "Calculate Section Results",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{instructorToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sections/{{sectionId}}/results/calculate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sections", "{{sectionId}}", "results", "calculate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Transcript",
+      "item": [
+        {
+          "name": "Get My Transcript",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transcripts/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "transcripts", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Fees and Payments",
+      "item": [
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/initiate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "initiate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Reports",
+      "item": [
+        {
+          "name": "Get Enrollment Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "enrollments"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
