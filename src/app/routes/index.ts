@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { AttendanceRoutes } from "../module/attendance/attendance.route.js";
 import { AuthRoutes } from "../module/auth/auth.route.js";
 import { CourseRoutes } from "../module/course/course.route.js";
 import { DepartmentRoutes } from "../module/department/department.route.js";
@@ -52,6 +53,10 @@ const moduleRoutes = [
   {
     path: "/enrollments",
     route: EnrollmentRoutes,
+  },
+  {
+    path: "/attendance",
+    route: AttendanceRoutes,
   },
 ];
 

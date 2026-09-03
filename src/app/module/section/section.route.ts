@@ -1,6 +1,8 @@
 import { Router } from "express";
 import checkAuth from "../../middleware/checkAuth.js";
 import validateRequest from "../../middleware/validateRequest.js";
+import { AttendanceController } from "../attendance/attendance.controller.js";
+import { AttendanceValidation } from "../attendance/attendance.validation.js";
 import { SectionController } from "./section.controller.js";
 import { SectionValidation } from "./section.validation.js";
 
@@ -41,5 +43,19 @@ router.patch(
 );
 
 router.delete("/:sectionId", checkAuth("SUPER_ADMIN"), SectionController.deleteSection);
+
+// Attendance Sessions for Section
+router.post(
+  "/:sectionId/attendance-sessions",
+  checkAuth("INSTRUCTOR", "SUPER_ADMIN"),
+  validateRequest(AttendanceValidation.createAttendanceSessionValidationSchema),
+  AttendanceController.createAttendanceSession,
+);
+
+router.get(
+  "/:sectionId/attendance",
+  checkAuth("INSTRUCTOR", "SUPER_ADMIN"),
+  AttendanceController.getSectionAttendance,
+);
 
 export const SectionRoutes = router;
