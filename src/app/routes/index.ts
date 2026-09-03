@@ -4,7 +4,10 @@ import { AuthRoutes } from "../module/auth/auth.route.js";
 import { CourseRoutes } from "../module/course/course.route.js";
 import { DepartmentRoutes } from "../module/department/department.route.js";
 import { EnrollmentRoutes } from "../module/enrollment/enrollment.route.js";
+import { FeeRoutes } from "../module/fee/fee.route.js";
 import { InstructorRoutes } from "../module/instructor/instructor.route.js";
+import { NotificationRoutes } from "../module/notification/notification.route.js";
+import { PaymentRoutes } from "../module/payment/payment.route.js";
 import { ProgramRoutes } from "../module/program/program.route.js";
 import { ResultRoutes } from "../module/result/result.route.js";
 import { SectionRoutes } from "../module/section/section.route.js";
@@ -67,6 +70,18 @@ const moduleRoutes = [
   {
     path: "/transcripts",
     route: TranscriptRoutes,
+  },
+  {
+    path: "/fees",
+    route: FeeRoutes,
+  },
+  {
+    path: "/payments",
+    route: PaymentRoutes,
+  },
+  {
+    path: "/notifications",
+    route: NotificationRoutes,
   },
 ];
 
