@@ -9,6 +9,7 @@ import { InstructorRoutes } from "../module/instructor/instructor.route.js";
 import { NotificationRoutes } from "../module/notification/notification.route.js";
 import { PaymentRoutes } from "../module/payment/payment.route.js";
 import { ProgramRoutes } from "../module/program/program.route.js";
+import { ReportRoutes } from "../module/report/report.route.js";
 import { ResultRoutes } from "../module/result/result.route.js";
 import { SectionRoutes } from "../module/section/section.route.js";
 import { SemesterRoutes } from "../module/semester/semester.route.js";
@@ -82,6 +83,10 @@ const moduleRoutes = [
   {
     path: "/notifications",
     route: NotificationRoutes,
+  },
+  {
+    path: "/reports",
+    route: ReportRoutes,
   },
 ];
 
