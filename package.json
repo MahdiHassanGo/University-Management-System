@@ -8,6 +8,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "deploy": "prisma migrate deploy --schema=prisma/schema && node dist/server.js",
     "postinstall": "prisma generate --schema=prisma/schema",
     "seed": "tsx src/app/utils/seed.ts",
     "lint:check": "biome check .",
