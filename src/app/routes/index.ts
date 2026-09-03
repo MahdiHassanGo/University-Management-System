@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AuthRoutes } from "../module/auth/auth.route.js";
+import { CourseRoutes } from "../module/course/course.route.js";
 import { DepartmentRoutes } from "../module/department/department.route.js";
 import { InstructorRoutes } from "../module/instructor/instructor.route.js";
 import { ProgramRoutes } from "../module/program/program.route.js";
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: "/programs",
     route: ProgramRoutes,
+  },
+  {
+    path: "/courses",
+    route: CourseRoutes,
   },
 ];
 
