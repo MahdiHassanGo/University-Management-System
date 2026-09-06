@@ -31,6 +31,11 @@ app.get("/", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "University Management System API is running",
+    data: {
+      status: "OK",
+      service: "University Management System API",
+      version: "1.0.0",
+    },
   });
 });
 

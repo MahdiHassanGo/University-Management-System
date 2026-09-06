@@ -16,13 +16,17 @@ const createExamValidationSchema = z.object({
 });
 
 const updateExamValidationSchema = z.object({
-  body: z.object({
-    title: z.string().min(1).optional(),
-    totalMarks: z.number().positive().optional(),
-    weightPercentage: z.number().positive().max(100).optional(),
-    heldAt: z.string().datetime().optional(),
-    status: examStatusEnum.optional(),
-  }),
+  body: z
+    .object({
+      title: z.string().min(1).optional(),
+      totalMarks: z.number().positive().optional(),
+      weightPercentage: z.number().positive().max(100).optional(),
+      heldAt: z.string().datetime().optional(),
+      status: examStatusEnum.optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 const bulkExamMarksValidationSchema = z.object({

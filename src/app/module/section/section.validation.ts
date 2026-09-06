@@ -28,12 +28,16 @@ const createSectionValidationSchema = z.object({
 });
 
 const updateSectionValidationSchema = z.object({
-  body: z.object({
-    instructorId: z.string().uuid().optional(),
-    capacity: z.number().int().positive().optional(),
-    status: sectionStatusEnum.optional(),
-    schedules: z.array(scheduleSchema).optional(),
-  }),
+  body: z
+    .object({
+      instructorId: z.string().uuid().optional(),
+      capacity: z.number().int().positive().optional(),
+      status: sectionStatusEnum.optional(),
+      schedules: z.array(scheduleSchema).optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 export const SectionValidation = {

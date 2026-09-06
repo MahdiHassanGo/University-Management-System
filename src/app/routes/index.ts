@@ -4,6 +4,7 @@ import { AuthRoutes } from "../module/auth/auth.route.js";
 import { CourseRoutes } from "../module/course/course.route.js";
 import { DepartmentRoutes } from "../module/department/department.route.js";
 import { EnrollmentRoutes } from "../module/enrollment/enrollment.route.js";
+import { ExamRoutes } from "../module/exam/exam.route.js";
 import { FeeRoutes } from "../module/fee/fee.route.js";
 import { InstructorRoutes } from "../module/instructor/instructor.route.js";
 import { NotificationRoutes } from "../module/notification/notification.route.js";
@@ -59,6 +60,10 @@ const moduleRoutes = [
   {
     path: "/enrollments",
     route: EnrollmentRoutes,
+  },
+  {
+    path: "/exams",
+    route: ExamRoutes,
   },
   {
     path: "/attendance",

@@ -19,17 +19,21 @@ const createStudentValidationSchema = z.object({
 });
 
 const updateStudentValidationSchema = z.object({
-  body: z.object({
-    name: z.string().optional(),
-    gender: genderEnum.optional(),
-    contactNo: z.string().optional(),
-    emergencyContactNo: z.string().optional(),
-    address: z.string().optional(),
-    bloodGroup: z.string().optional(),
-    programId: z.string().uuid().optional(),
-    admissionSemesterId: z.string().uuid().optional(),
-    academicStatus: academicStatusEnum.optional(),
-  }),
+  body: z
+    .object({
+      name: z.string().optional(),
+      gender: genderEnum.optional(),
+      contactNo: z.string().optional(),
+      emergencyContactNo: z.string().optional(),
+      address: z.string().optional(),
+      bloodGroup: z.string().optional(),
+      programId: z.string().uuid().optional(),
+      admissionSemesterId: z.string().uuid().optional(),
+      academicStatus: academicStatusEnum.optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 export const StudentValidation = {

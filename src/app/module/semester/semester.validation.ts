@@ -17,16 +17,20 @@ const createSemesterValidationSchema = z.object({
 });
 
 const updateSemesterValidationSchema = z.object({
-  body: z.object({
-    year: z.number().int().positive().optional(),
-    term: semesterTermEnum.optional(),
-    status: semesterStatusEnum.optional(),
-    registrationStart: z.string().datetime().optional(),
-    registrationEnd: z.string().datetime().optional(),
-    classStart: z.string().datetime().optional(),
-    classEnd: z.string().datetime().optional(),
-    resultDate: z.string().datetime().optional(),
-  }),
+  body: z
+    .object({
+      year: z.number().int().positive().optional(),
+      term: semesterTermEnum.optional(),
+      status: semesterStatusEnum.optional(),
+      registrationStart: z.string().datetime().optional(),
+      registrationEnd: z.string().datetime().optional(),
+      classStart: z.string().datetime().optional(),
+      classEnd: z.string().datetime().optional(),
+      resultDate: z.string().datetime().optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 const updateSemesterStatusValidationSchema = z.object({

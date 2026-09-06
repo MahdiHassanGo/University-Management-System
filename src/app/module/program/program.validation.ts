@@ -13,15 +13,19 @@ const createProgramValidationSchema = z.object({
 });
 
 const updateProgramValidationSchema = z.object({
-  body: z.object({
-    code: z.string().min(1).optional(),
-    name: z.string().min(1).optional(),
-    departmentId: z.string().uuid().optional(),
-    degreeType: z.string().min(1).optional(),
-    totalCredits: z.number().int().positive().optional(),
-    maxSemesterCredits: z.number().int().positive().optional(),
-    isActive: z.boolean().optional(),
-  }),
+  body: z
+    .object({
+      code: z.string().min(1).optional(),
+      name: z.string().min(1).optional(),
+      departmentId: z.string().uuid().optional(),
+      degreeType: z.string().min(1).optional(),
+      totalCredits: z.number().int().positive().optional(),
+      maxSemesterCredits: z.number().int().positive().optional(),
+      isActive: z.boolean().optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 export const ProgramValidation = {

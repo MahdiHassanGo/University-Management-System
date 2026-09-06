@@ -85,6 +85,19 @@ const globalErrorHandler: ErrorRequestHandler = (
           message,
         },
       ];
+    } else if (
+      prismaErr.code === "P2023" ||
+      prismaErr.code === "P2000" ||
+      prismaErr.code === "P2006"
+    ) {
+      statusCode = 400;
+      message = "Invalid input format or invalid UUID parameter";
+      errorSources = [
+        {
+          path: "",
+          message,
+        },
+      ];
     } else {
       statusCode = 400;
       message = prismaErr.message || "Database error occurred";

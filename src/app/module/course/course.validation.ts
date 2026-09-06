@@ -12,14 +12,18 @@ const createCourseValidationSchema = z.object({
 });
 
 const updateCourseValidationSchema = z.object({
-  body: z.object({
-    code: z.string().min(1).optional(),
-    title: z.string().min(1).optional(),
-    credit: z.number().int().positive().optional(),
-    courseLevel: z.number().int().positive().optional(),
-    departmentId: z.string().uuid().optional(),
-    isActive: z.boolean().optional(),
-  }),
+  body: z
+    .object({
+      code: z.string().min(1).optional(),
+      title: z.string().min(1).optional(),
+      credit: z.number().int().positive().optional(),
+      courseLevel: z.number().int().positive().optional(),
+      departmentId: z.string().uuid().optional(),
+      isActive: z.boolean().optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 const addProgramCourseValidationSchema = z.object({

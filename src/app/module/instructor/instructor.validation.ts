@@ -14,13 +14,17 @@ const createInstructorValidationSchema = z.object({
 });
 
 const updateInstructorValidationSchema = z.object({
-  body: z.object({
-    name: z.string().optional(),
-    designation: z.string().optional(),
-    departmentId: z.string().uuid().optional(),
-    contactNo: z.string().optional(),
-    academicStatus: academicStatusEnum.optional(),
-  }),
+  body: z
+    .object({
+      name: z.string().optional(),
+      designation: z.string().optional(),
+      departmentId: z.string().uuid().optional(),
+      contactNo: z.string().optional(),
+      academicStatus: academicStatusEnum.optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 export const InstructorValidation = {
