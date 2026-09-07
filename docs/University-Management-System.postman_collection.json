@@ -1575,7 +1575,7 @@
                   "try {",
                   "  const json = pm.response.json();",
                   "  const value = json.data && json.data.id;",
-                  "  if (value) pm.environment.set(\"seedInstructorId\", value);",
+                  "  if (value) pm.environment.set(\"createdInstructorId\", value);",
                   "} catch (_) {}"
                 ]
               }
