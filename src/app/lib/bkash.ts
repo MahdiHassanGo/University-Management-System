@@ -46,22 +46,11 @@ const safeParseResponse = async <T>(res: Response, endpointName: string): Promis
     return JSON.parse(text) as T;
   } catch (_e) {
     try {
-      // biome-ignore lint/suspicious/noControlCharactersInRegex: sanitize control characters from external gateway HTTP responses
-      const sanitized = text.replace(/[\x00-\x1F\x7F]/g, (match) => {
-        switch (match) {
-          case "\n":
-            return "\\n";
-          case "\r":
-            return "\\r";
-          case "\t":
-            return "\\t";
-          default:
-            return "";
-        }
-      });
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: sanitize unprintable control characters
+      const sanitized = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
       return JSON.parse(sanitized) as T;
     } catch (_e2) {
-      const snippet = text.slice(0, 250).replace(/[\r\n]+/g, " ");
+      const snippet = text.slice(0, 250).replace(/[\r\n\t]+/g, " ");
       throw new AppError(
         502,
         `bKash payment gateway (${endpointName}) returned invalid response (Status ${res.status}): ${snippet}`,
@@ -100,8 +89,8 @@ const grantToken = async (): Promise<string> => {
   const data = await safeParseResponse<IBkashGrantTokenResponse>(res, "grantToken");
   if (!data.id_token) {
     throw new AppError(
-      500,
-      `Failed to authenticate with bKash payment gateway: ${data.statusMessage || "id_token missing"}`,
+      400,
+      `bKash payment gateway authentication failed (${data.statusCode || "9999"}): ${data.statusMessage || "Invalid or unrecognized credentials"}`,
     );
   }
   return data.id_token;
