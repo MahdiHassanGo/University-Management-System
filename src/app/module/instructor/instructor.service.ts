@@ -35,47 +35,50 @@ const createInstructorInDB = async (payload: ICreateInstructorPayload) => {
 
   const hashedPassword = await bcrypt.hash(password, config.BCRYPT_SALT_ROUNDS);
 
-  const result = await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        role: "INSTRUCTOR",
-        status: "ACTIVE",
-        provider: "CREDENTIALS",
-      },
-    });
-
-    const instructorCount = await tx.instructor.count();
-    const employeeId = `EMP${String(instructorCount + 1).padStart(4, "0")}`;
-
-    const instructorProfile = await tx.instructor.create({
-      data: {
-        employeeId,
-        userId: user.id,
-        name,
-        designation,
-        departmentId,
-        contactNo,
-        academicStatus: "ACTIVE",
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            status: true,
-            provider: true,
-            createdAt: true,
-          },
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          role: "INSTRUCTOR",
+          status: "ACTIVE",
+          provider: "CREDENTIALS",
         },
-        department: true,
-      },
-    });
+      });
 
-    return instructorProfile;
-  });
+      const instructorCount = await tx.instructor.count();
+      const employeeId = `EMP${String(instructorCount + 1).padStart(4, "0")}`;
+
+      const instructorProfile = await tx.instructor.create({
+        data: {
+          employeeId,
+          userId: user.id,
+          name,
+          designation,
+          departmentId,
+          contactNo,
+          academicStatus: "ACTIVE",
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              role: true,
+              status: true,
+              provider: true,
+              createdAt: true,
+            },
+          },
+          department: true,
+        },
+      });
+
+      return instructorProfile;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return result;
 };

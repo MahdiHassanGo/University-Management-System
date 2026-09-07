@@ -105,34 +105,37 @@ const bulkMarkAttendanceInDB = async (
     }
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    const records = [];
-    for (const rec of payload.records) {
-      const record = await tx.attendanceRecord.upsert({
-        where: {
-          sessionId_studentId: {
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const records = [];
+      for (const rec of payload.records) {
+        const record = await tx.attendanceRecord.upsert({
+          where: {
+            sessionId_studentId: {
+              sessionId,
+              studentId: rec.studentId,
+            },
+          },
+          create: {
             sessionId,
             studentId: rec.studentId,
+            status: rec.status,
+            note: rec.note,
           },
-        },
-        create: {
-          sessionId,
-          studentId: rec.studentId,
-          status: rec.status,
-          note: rec.note,
-        },
-        update: {
-          status: rec.status,
-          note: rec.note,
-        },
-        include: {
-          student: true,
-        },
-      });
-      records.push(record);
-    }
-    return records;
-  });
+          update: {
+            status: rec.status,
+            note: rec.note,
+          },
+          include: {
+            student: true,
+          },
+        });
+        records.push(record);
+      }
+      return records;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return result;
 };

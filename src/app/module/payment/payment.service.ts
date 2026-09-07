@@ -132,37 +132,40 @@ const handleBkashCallbackInDB = async (query: IBkashCallbackQueryParams) => {
   }
 
   // Transactional update: Mark payment PAID, mark invoice PAID, create notification
-  const finalResult = await prisma.$transaction(async (tx) => {
-    const trxID = bkashExecRes.trxID || `TRX_${Date.now()}`;
+  const finalResult = await prisma.$transaction(
+    async (tx) => {
+      const trxID = bkashExecRes.trxID || `TRX_${Date.now()}`;
 
-    const updatedPayment = await tx.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: "PAID",
-        trxID,
-        gatewayResponse: bkashExecRes as unknown as Prisma.InputJsonValue,
-      },
-    });
+      const updatedPayment = await tx.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: "PAID",
+          trxID,
+          gatewayResponse: bkashExecRes as unknown as Prisma.InputJsonValue,
+        },
+      });
 
-    await tx.feeInvoice.update({
-      where: { id: payment.invoiceId },
-      data: {
-        status: "PAID",
-      },
-    });
+      await tx.feeInvoice.update({
+        where: { id: payment.invoiceId },
+        data: {
+          status: "PAID",
+        },
+      });
 
-    await tx.notification.create({
-      data: {
-        recipientId: payment.invoice.student.userId,
-        type: "PAYMENT",
-        title: "Payment Received",
-        message: `Your payment of BDT ${payment.amount} for Invoice #${payment.invoice.invoiceNumber} was successful. Transaction ID: ${trxID}`,
-        relatedEntityId: payment.id,
-      },
-    });
+      await tx.notification.create({
+        data: {
+          recipientId: payment.invoice.student.userId,
+          type: "PAYMENT",
+          title: "Payment Received",
+          message: `Your payment of BDT ${payment.amount} for Invoice #${payment.invoice.invoiceNumber} was successful. Transaction ID: ${trxID}`,
+          relatedEntityId: payment.id,
+        },
+      });
 
-    return updatedPayment;
-  });
+      return updatedPayment;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return {
     message: "Payment completed and verified successfully",

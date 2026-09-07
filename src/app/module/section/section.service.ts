@@ -117,34 +117,37 @@ const createSectionInDB = async (payload: ICreateSectionPayload) => {
   // Check schedule conflicts
   await checkScheduleConflicts(semesterId, instructorId, schedules);
 
-  const section = await prisma.$transaction(async (tx) => {
-    const newSection = await tx.section.create({
-      data: {
-        courseId,
-        semesterId,
-        instructorId,
-        sectionNumber,
-        capacity,
-        status: status || "OPEN",
-        schedules: {
-          create: schedules.map((s) => ({
-            dayOfWeek: s.dayOfWeek,
-            startTime: s.startTime,
-            endTime: s.endTime,
-            room: s.room,
-          })),
+  const section = await prisma.$transaction(
+    async (tx) => {
+      const newSection = await tx.section.create({
+        data: {
+          courseId,
+          semesterId,
+          instructorId,
+          sectionNumber,
+          capacity,
+          status: status || "OPEN",
+          schedules: {
+            create: schedules.map((s) => ({
+              dayOfWeek: s.dayOfWeek,
+              startTime: s.startTime,
+              endTime: s.endTime,
+              room: s.room,
+            })),
+          },
         },
-      },
-      include: {
-        course: true,
-        semester: true,
-        instructor: true,
-        schedules: true,
-      },
-    });
+        include: {
+          course: true,
+          semester: true,
+          instructor: true,
+          schedules: true,
+        },
+      });
 
-    return newSection;
-  });
+      return newSection;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return section;
 };
@@ -375,36 +378,39 @@ const updateSectionInDB = async (sectionId: string, payload: IUpdateSectionPaylo
     );
   }
 
-  const updatedSection = await prisma.$transaction(async (tx) => {
-    if (payload.schedules) {
-      await tx.sectionSchedule.deleteMany({ where: { sectionId } });
-    }
+  const updatedSection = await prisma.$transaction(
+    async (tx) => {
+      if (payload.schedules) {
+        await tx.sectionSchedule.deleteMany({ where: { sectionId } });
+      }
 
-    return await tx.section.update({
-      where: { id: sectionId },
-      data: {
-        ...(payload.instructorId && { instructorId: payload.instructorId }),
-        ...(payload.capacity !== undefined && { capacity: payload.capacity }),
-        ...(payload.status && { status: payload.status }),
-        ...(payload.schedules && {
-          schedules: {
-            create: payload.schedules.map((s) => ({
-              dayOfWeek: s.dayOfWeek,
-              startTime: s.startTime,
-              endTime: s.endTime,
-              room: s.room,
-            })),
-          },
-        }),
-      },
-      include: {
-        course: true,
-        semester: true,
-        instructor: true,
-        schedules: true,
-      },
-    });
-  });
+      return await tx.section.update({
+        where: { id: sectionId },
+        data: {
+          ...(payload.instructorId && { instructorId: payload.instructorId }),
+          ...(payload.capacity !== undefined && { capacity: payload.capacity }),
+          ...(payload.status && { status: payload.status }),
+          ...(payload.schedules && {
+            schedules: {
+              create: payload.schedules.map((s) => ({
+                dayOfWeek: s.dayOfWeek,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                room: s.room,
+              })),
+            },
+          }),
+        },
+        include: {
+          course: true,
+          semester: true,
+          instructor: true,
+          schedules: true,
+        },
+      });
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return updatedSection;
 };

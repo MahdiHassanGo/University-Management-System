@@ -52,57 +52,60 @@ const createStudentInDB = async (payload: ICreateStudentPayload) => {
 
   const hashedPassword = await bcrypt.hash(password, config.BCRYPT_SALT_ROUNDS);
 
-  const result = await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        role: "STUDENT",
-        status: "ACTIVE",
-        provider: "CREDENTIALS",
-      },
-    });
-
-    const studentCount = await tx.student.count();
-    const currentYear = new Date().getFullYear();
-    const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
-
-    const studentProfile = await tx.student.create({
-      data: {
-        studentId,
-        userId: user.id,
-        name,
-        gender,
-        contactNo,
-        emergencyContactNo,
-        address,
-        bloodGroup,
-        programId,
-        admissionSemesterId,
-        academicStatus: "ACTIVE",
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            status: true,
-            provider: true,
-            createdAt: true,
-          },
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          role: "STUDENT",
+          status: "ACTIVE",
+          provider: "CREDENTIALS",
         },
-        program: {
-          include: {
-            department: true,
-          },
-        },
-        admissionSemester: true,
-      },
-    });
+      });
 
-    return studentProfile;
-  });
+      const studentCount = await tx.student.count();
+      const currentYear = new Date().getFullYear();
+      const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
+
+      const studentProfile = await tx.student.create({
+        data: {
+          studentId,
+          userId: user.id,
+          name,
+          gender,
+          contactNo,
+          emergencyContactNo,
+          address,
+          bloodGroup,
+          programId,
+          admissionSemesterId,
+          academicStatus: "ACTIVE",
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              role: true,
+              status: true,
+              provider: true,
+              createdAt: true,
+            },
+          },
+          program: {
+            include: {
+              department: true,
+            },
+          },
+          admissionSemester: true,
+        },
+      });
+
+      return studentProfile;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return result;
 };

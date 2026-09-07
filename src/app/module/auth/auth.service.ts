@@ -40,50 +40,53 @@ const registerStudentIntoDB = async (payload: IRegisterStudent) => {
 
   const hashedPassword = await bcrypt.hash(password, config.BCRYPT_SALT_ROUNDS);
 
-  const result = await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        role: "STUDENT",
-        status: "ACTIVE",
-        provider: "CREDENTIALS",
-      },
-    });
-
-    const studentCount = await tx.student.count();
-    const currentYear = new Date().getFullYear();
-    const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
-
-    const studentProfile = await tx.student.create({
-      data: {
-        studentId,
-        userId: user.id,
-        name,
-        gender,
-        contactNo,
-        programId,
-        admissionSemesterId,
-        academicStatus: "ACTIVE",
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            status: true,
-            provider: true,
-            createdAt: true,
-          },
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          role: "STUDENT",
+          status: "ACTIVE",
+          provider: "CREDENTIALS",
         },
-        program: true,
-        admissionSemester: true,
-      },
-    });
+      });
 
-    return studentProfile;
-  });
+      const studentCount = await tx.student.count();
+      const currentYear = new Date().getFullYear();
+      const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
+
+      const studentProfile = await tx.student.create({
+        data: {
+          studentId,
+          userId: user.id,
+          name,
+          gender,
+          contactNo,
+          programId,
+          admissionSemesterId,
+          academicStatus: "ACTIVE",
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              role: true,
+              status: true,
+              provider: true,
+              createdAt: true,
+            },
+          },
+          program: true,
+          admissionSemester: true,
+        },
+      });
+
+      return studentProfile;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return result;
 };
@@ -238,35 +241,38 @@ const googleLoginFromDB = async (payload: IGoogleLogin): Promise<ILoginUserRespo
       admissionSemesterId = defaultSemester.id;
     }
 
-    user = await prisma.$transaction(async (tx) => {
-      const newUser = await tx.user.create({
-        data: {
-          email: email.toLowerCase(),
-          googleId,
-          role: "STUDENT",
-          status: "ACTIVE",
-          provider: "GOOGLE",
-          emailVerified: true,
-        },
-      });
+    user = await prisma.$transaction(
+      async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            email: email.toLowerCase(),
+            googleId,
+            role: "STUDENT",
+            status: "ACTIVE",
+            provider: "GOOGLE",
+            emailVerified: true,
+          },
+        });
 
-      const studentCount = await tx.student.count();
-      const currentYear = new Date().getFullYear();
-      const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
+        const studentCount = await tx.student.count();
+        const currentYear = new Date().getFullYear();
+        const studentId = `STU${currentYear}${String(studentCount + 1).padStart(4, "0")}`;
 
-      await tx.student.create({
-        data: {
-          studentId,
-          userId: newUser.id,
-          name,
-          programId: programId as string,
-          admissionSemesterId: admissionSemesterId as string,
-          academicStatus: "ACTIVE",
-        },
-      });
+        await tx.student.create({
+          data: {
+            studentId,
+            userId: newUser.id,
+            name,
+            programId: programId as string,
+            admissionSemesterId: admissionSemesterId as string,
+            academicStatus: "ACTIVE",
+          },
+        });
 
-      return newUser;
-    });
+        return newUser;
+      },
+      { maxWait: 5000, timeout: 20000 },
+    );
   }
 
   const jwtPayload = {

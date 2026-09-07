@@ -36,52 +36,55 @@ const calculateSectionResultsInDB = async (userId: string, role: string, section
     throw new AppError(400, "No exams exist for this section to calculate results");
   }
 
-  const calculatedResults = await prisma.$transaction(async (tx) => {
-    const results = [];
+  const calculatedResults = await prisma.$transaction(
+    async (tx) => {
+      const results = [];
 
-    for (const enrollment of section.enrollments) {
-      let totalWeightedMarks = 0;
+      for (const enrollment of section.enrollments) {
+        let totalWeightedMarks = 0;
 
-      for (const exam of section.exams) {
-        const studentExamResult = exam.results.find((r) => r.studentId === enrollment.studentId);
+        for (const exam of section.exams) {
+          const studentExamResult = exam.results.find((r) => r.studentId === enrollment.studentId);
 
-        if (studentExamResult && exam.totalMarks > 0) {
-          const obtainedPercentage = studentExamResult.marks / exam.totalMarks;
-          const weightedMarks = obtainedPercentage * exam.weightPercentage;
-          totalWeightedMarks += weightedMarks;
+          if (studentExamResult && exam.totalMarks > 0) {
+            const obtainedPercentage = studentExamResult.marks / exam.totalMarks;
+            const weightedMarks = obtainedPercentage * exam.weightPercentage;
+            totalWeightedMarks += weightedMarks;
+          }
         }
-      }
 
-      const { letterGrade, gradePoint } = calculateGradeAndPoint(totalWeightedMarks);
+        const { letterGrade, gradePoint } = calculateGradeAndPoint(totalWeightedMarks);
 
-      const courseResult = await tx.courseResult.upsert({
-        where: { enrollmentId: enrollment.id },
-        create: {
-          enrollmentId: enrollment.id,
-          totalMarks: Number(totalWeightedMarks.toFixed(2)),
-          letterGrade,
-          gradePoint,
-          publicationStatus: "DRAFT",
-        },
-        update: {
-          totalMarks: Number(totalWeightedMarks.toFixed(2)),
-          letterGrade,
-          gradePoint,
-        },
-        include: {
-          enrollment: {
-            include: {
-              student: true,
+        const courseResult = await tx.courseResult.upsert({
+          where: { enrollmentId: enrollment.id },
+          create: {
+            enrollmentId: enrollment.id,
+            totalMarks: Number(totalWeightedMarks.toFixed(2)),
+            letterGrade,
+            gradePoint,
+            publicationStatus: "DRAFT",
+          },
+          update: {
+            totalMarks: Number(totalWeightedMarks.toFixed(2)),
+            letterGrade,
+            gradePoint,
+          },
+          include: {
+            enrollment: {
+              include: {
+                student: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      results.push(courseResult);
-    }
+        results.push(courseResult);
+      }
 
-    return results;
-  });
+      return results;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return calculatedResults;
 };
@@ -111,47 +114,50 @@ const publishSectionResultsInDB = async (userId: string, role: string, sectionId
     throw new AppError(403, "Forbidden! You can only publish results for your assigned sections.");
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    const publishedAt = new Date();
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const publishedAt = new Date();
 
-    const enrollmentIds = section.enrollments
-      .filter((e) => e.courseResult !== null)
-      .map((e) => e.id);
+      const enrollmentIds = section.enrollments
+        .filter((e) => e.courseResult !== null)
+        .map((e) => e.id);
 
-    if (enrollmentIds.length === 0) {
-      throw new AppError(
-        400,
-        "No calculated course results found for this section. Calculate results first.",
-      );
-    }
-
-    await tx.courseResult.updateMany({
-      where: {
-        enrollmentId: { in: enrollmentIds },
-      },
-      data: {
-        publicationStatus: "PUBLISHED",
-        publishedAt,
-      },
-    });
-
-    // Send notifications to enrolled students
-    for (const enrollment of section.enrollments) {
-      if (enrollment.courseResult) {
-        await tx.notification.create({
-          data: {
-            recipientId: enrollment.student.userId,
-            type: "RESULT",
-            title: "Course Result Published",
-            message: `Your final result for ${section.course.code} (${section.semester.term} ${section.semester.year}) has been published. Grade: ${enrollment.courseResult.letterGrade}`,
-            relatedEntityId: enrollment.courseResult.id,
-          },
-        });
+      if (enrollmentIds.length === 0) {
+        throw new AppError(
+          400,
+          "No calculated course results found for this section. Calculate results first.",
+        );
       }
-    }
 
-    return { publishedCount: enrollmentIds.length, publishedAt };
-  });
+      await tx.courseResult.updateMany({
+        where: {
+          enrollmentId: { in: enrollmentIds },
+        },
+        data: {
+          publicationStatus: "PUBLISHED",
+          publishedAt,
+        },
+      });
+
+      // Send notifications to enrolled students
+      for (const enrollment of section.enrollments) {
+        if (enrollment.courseResult) {
+          await tx.notification.create({
+            data: {
+              recipientId: enrollment.student.userId,
+              type: "RESULT",
+              title: "Course Result Published",
+              message: `Your final result for ${section.course.code} (${section.semester.term} ${section.semester.year}) has been published. Grade: ${enrollment.courseResult.letterGrade}`,
+              relatedEntityId: enrollment.courseResult.id,
+            },
+          });
+        }
+      }
+
+      return { publishedCount: enrollmentIds.length, publishedAt };
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return result;
 };

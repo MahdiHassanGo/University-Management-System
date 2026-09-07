@@ -67,29 +67,32 @@ const bulkCreateFeeInvoicesInDB = async (payload: IBulkCreateFeeInvoicePayload) 
     throw new AppError(400, "No active students found to create invoices");
   }
 
-  const createdInvoices = await prisma.$transaction(async (tx) => {
-    const list = [];
-    const baseCount = await tx.feeInvoice.count();
-    const year = new Date().getFullYear();
+  const createdInvoices = await prisma.$transaction(
+    async (tx) => {
+      const list = [];
+      const baseCount = await tx.feeInvoice.count();
+      const year = new Date().getFullYear();
 
-    for (let i = 0; i < students.length; i++) {
-      const student = students[i];
-      const invoiceNumber = `INV${year}${String(baseCount + i + 1).padStart(5, "0")}`;
+      for (let i = 0; i < students.length; i++) {
+        const student = students[i];
+        const invoiceNumber = `INV${year}${String(baseCount + i + 1).padStart(5, "0")}`;
 
-      const inv = await tx.feeInvoice.create({
-        data: {
-          invoiceNumber,
-          studentId: student.id,
-          semesterId,
-          amount,
-          dueDate: new Date(dueDate),
-          status: "UNPAID",
-        },
-      });
-      list.push(inv);
-    }
-    return list;
-  });
+        const inv = await tx.feeInvoice.create({
+          data: {
+            invoiceNumber,
+            studentId: student.id,
+            semesterId,
+            amount,
+            dueDate: new Date(dueDate),
+            status: "UNPAID",
+          },
+        });
+        list.push(inv);
+      }
+      return list;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return createdInvoices;
 };

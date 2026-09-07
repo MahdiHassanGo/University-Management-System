@@ -212,41 +212,44 @@ const bulkMarkExamResultsInDB = async (
     }
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    const savedResults = [];
-    for (const item of payload.results) {
-      const res = await tx.examResult.upsert({
-        where: {
-          examId_studentId: {
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const savedResults = [];
+      for (const item of payload.results) {
+        const res = await tx.examResult.upsert({
+          where: {
+            examId_studentId: {
+              examId,
+              studentId: item.studentId,
+            },
+          },
+          create: {
             examId,
             studentId: item.studentId,
+            marks: item.marks,
           },
-        },
-        create: {
-          examId,
-          studentId: item.studentId,
-          marks: item.marks,
-        },
-        update: {
-          marks: item.marks,
-        },
-        include: {
-          student: true,
-        },
-      });
-      savedResults.push(res);
-    }
+          update: {
+            marks: item.marks,
+          },
+          include: {
+            student: true,
+          },
+        });
+        savedResults.push(res);
+      }
 
-    // Auto mark exam status as PUBLISHED/COMPLETED if not DRAFT
-    if (exam.status === "DRAFT") {
-      await tx.exam.update({
-        where: { id: examId },
-        data: { status: "PUBLISHED" },
-      });
-    }
+      // Auto mark exam status as PUBLISHED/COMPLETED if not DRAFT
+      if (exam.status === "DRAFT") {
+        await tx.exam.update({
+          where: { id: examId },
+          data: { status: "PUBLISHED" },
+        });
+      }
 
-    return savedResults;
-  });
+      return savedResults;
+    },
+    { maxWait: 5000, timeout: 20000 },
+  );
 
   return result;
 };
