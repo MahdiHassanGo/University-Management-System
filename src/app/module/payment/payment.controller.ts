@@ -17,9 +17,9 @@ const initiatePayment = catchAsync(async (req: Request, res: Response) => {
 
 const handleBkashCallback = catchAsync(async (req: Request, res: Response) => {
   const queryParams = {
-    paymentID: (req.query.paymentID || req.body.paymentID) as string,
-    status: (req.query.status || req.body.status) as string,
-    apiVersion: (req.query.apiVersion || req.body.apiVersion) as string,
+    paymentID: (req.query?.paymentID || req.body?.paymentID) as string,
+    status: (req.query?.status || req.body?.status) as string,
+    apiVersion: (req.query?.apiVersion || req.body?.apiVersion) as string,
   };
 
   const result = await PaymentService.handleBkashCallbackInDB(queryParams);
