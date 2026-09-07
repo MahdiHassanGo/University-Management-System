@@ -11,20 +11,27 @@ import router from "./app/routes/index.js";
 
 const app: Application = express();
 
-app.use(helmet());
+// biome-ignore lint/suspicious/noExplicitAny: ESM/CJS interop fallback
+const helmetFn = typeof helmet === "function" ? helmet : (helmet as any).default;
+if (typeof helmetFn === "function") {
+  app.use(helmetFn());
+}
 
-const limiter = rateLimit({
-  windowMs: config.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
-  max: config.RATE_LIMIT_MAX || 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: "Too many requests from this IP, please try again later.",
-  },
-});
-
-app.use(limiter);
+// biome-ignore lint/suspicious/noExplicitAny: ESM/CJS interop fallback
+const rateLimitFn = typeof rateLimit === "function" ? rateLimit : (rateLimit as any).default;
+if (typeof rateLimitFn === "function") {
+  const limiter = rateLimitFn({
+    windowMs: config.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
+    max: config.RATE_LIMIT_MAX || 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      success: false,
+      message: "Too many requests from this IP, please try again later.",
+    },
+  });
+  app.use(limiter);
+}
 
 app.use(
   cors({
