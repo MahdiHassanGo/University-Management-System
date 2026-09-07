@@ -41,20 +41,35 @@ const getBkashBaseUrl = () => {
 };
 
 const safeParseResponse = async <T>(res: Response, endpointName: string): Promise<T> => {
-  const text = await res.text();
+  const rawText = await res.text();
+  const text = rawText.trim().replace(/^\uFEFF/, "");
+
   try {
     return JSON.parse(text) as T;
   } catch (_e) {
     try {
-      // biome-ignore lint/suspicious/noControlCharactersInRegex: sanitize unprintable control characters
-      const sanitized = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+      // Escape raw control characters inside JSON string literals
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: sanitize control characters from external gateway HTTP responses
+      const sanitized = text.replace(/[\x00-\x1F\x7F]/g, (match) => {
+        if (match === "\n") return "\\n";
+        if (match === "\r") return "\\r";
+        if (match === "\t") return "\\t";
+        return "";
+      });
       return JSON.parse(sanitized) as T;
     } catch (_e2) {
-      const snippet = text.slice(0, 250).replace(/[\r\n\t]+/g, " ");
-      throw new AppError(
-        502,
-        `bKash payment gateway (${endpointName}) returned invalid response (Status ${res.status}): ${snippet}`,
-      );
+      try {
+        // Strip control characters completely if escaping fails
+        // biome-ignore lint/suspicious/noControlCharactersInRegex: fallback strip control characters
+        const stripped = text.replace(/[\x00-\x1F\x7F]/g, " ");
+        return JSON.parse(stripped) as T;
+      } catch (_e3) {
+        const snippet = text.slice(0, 250).replace(/[\r\n\t]+/g, " ");
+        throw new AppError(
+          502,
+          `bKash payment gateway (${endpointName}) returned invalid response (Status ${res.status}): ${snippet}`,
+        );
+      }
     }
   }
 };
