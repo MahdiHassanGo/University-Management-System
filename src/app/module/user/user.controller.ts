@@ -6,8 +6,9 @@ import { UserService } from "./user.service.js";
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.userId as string;
   const { status } = req.body;
+  const actorId = req.user?.userId;
 
-  const result = await UserService.updateUserStatusInDB(userId, status);
+  const result = await UserService.updateUserStatusInDB(userId, status, actorId);
 
   sendResponse(res, {
     statusCode: 200,

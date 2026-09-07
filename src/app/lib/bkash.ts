@@ -84,10 +84,7 @@ const createPayment = async (
     "https://university-management-system-mu-sage.vercel.app/api/v1/payments/bkash/callback";
 
   if (!appKey || appKey.includes("placeholder")) {
-    throw new AppError(
-      500,
-      "bKash payment gateway configuration is missing or unconfigured.",
-    );
+    throw new AppError(500, "bKash payment gateway configuration is missing or unconfigured.");
   }
 
   const idToken = await grantToken();
@@ -119,10 +116,7 @@ const executePayment = async (paymentID: string): Promise<IBkashExecutePaymentRe
   const appKey = config.BKASH_APP_KEY;
 
   if (!appKey || appKey.includes("placeholder")) {
-    throw new AppError(
-      500,
-      "bKash payment gateway configuration is missing or unconfigured.",
-    );
+    throw new AppError(500, "bKash payment gateway configuration is missing or unconfigured.");
   }
 
   const idToken = await grantToken();

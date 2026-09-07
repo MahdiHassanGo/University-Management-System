@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SemesterValidation } from "../../src/app/module/semester/semester.validation.js";
+import { UserValidation } from "../../src/app/module/user/user.validation.js";
 
 describe("Zod Validation Schema Tests", () => {
   it("should validate valid semester creation payload", () => {
@@ -32,6 +33,28 @@ describe("Zod Validation Schema Tests", () => {
     };
 
     const parsed = SemesterValidation.createSemesterValidationSchema.safeParse(invalidPayload);
+    expect(parsed.success).toBe(false);
+  });
+
+  it("should validate valid user status update payload", () => {
+    const validPayload = {
+      body: {
+        status: "BLOCKED",
+      },
+    };
+
+    const parsed = UserValidation.updateUserStatusValidationSchema.safeParse(validPayload);
+    expect(parsed.success).toBe(true);
+  });
+
+  it("should reject invalid status in user status update payload", () => {
+    const invalidPayload = {
+      body: {
+        status: "INVALID_STATUS",
+      },
+    };
+
+    const parsed = UserValidation.updateUserStatusValidationSchema.safeParse(invalidPayload);
     expect(parsed.success).toBe(false);
   });
 });
