@@ -23,7 +23,7 @@ const createAttendanceSessionInDB = async (
     throw new AppError(404, "Section not found");
   }
 
-  if (role === "INSTRUCTOR" && section.instructor.userId !== userId) {
+  if (role === "INSTRUCTOR" && section.instructor?.userId !== userId) {
     throw new AppError(
       403,
       "Forbidden! You can only create attendance sessions for your assigned sections.",
@@ -82,7 +82,7 @@ const bulkMarkAttendanceInDB = async (
     throw new AppError(404, "Attendance session not found");
   }
 
-  if (role === "INSTRUCTOR" && session.section.instructor.userId !== userId) {
+  if (role === "INSTRUCTOR" && session.section.instructor?.userId !== userId) {
     throw new AppError(403, "Forbidden! You can only mark attendance for your assigned sections.");
   }
 
@@ -160,7 +160,7 @@ const updateAttendanceRecordInDB = async (
     throw new AppError(404, "Attendance record not found");
   }
 
-  if (role === "INSTRUCTOR" && record.session.section.instructor.userId !== userId) {
+  if (role === "INSTRUCTOR" && record.session.section.instructor?.userId !== userId) {
     throw new AppError(
       403,
       "Forbidden! You can only modify attendance records for your assigned sections.",
@@ -188,7 +188,7 @@ const getSectionAttendanceFromDB = async (userId: string, role: string, sectionI
     throw new AppError(404, "Section not found");
   }
 
-  if (role === "INSTRUCTOR" && section.instructor.userId !== userId) {
+  if (role === "INSTRUCTOR" && section.instructor?.userId !== userId) {
     throw new AppError(403, "Forbidden! You can only view attendance for your assigned sections.");
   }
 
