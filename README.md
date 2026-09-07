@@ -2,20 +2,29 @@
 
 A production-ready University Management System Backend REST API built with Express 5, TypeScript, PostgreSQL, and Prisma ORM.
 
+### 🌐 Live Deployed Production API
+- **Live Base URL**: `https://university-management-system-mu-sage.vercel.app`
+- **API Version Root**: `https://university-management-system-mu-sage.vercel.app/api/v1`
+- **Health Endpoint**: `https://university-management-system-mu-sage.vercel.app/health`
+
+---
+
 ## Project Overview
 
-This backend system powers academic administration, student course registration, attendance tracking, exam & marks management, GPA/CGPA transcript generation, fee invoicing, real bKash Tokenized Checkout payments, and Super Admin analytics.
+This backend system powers academic administration, student course registration, attendance tracking, exam & marks management, GPA/CGPA transcript generation, fee invoicing, real bKash Tokenized Checkout payments, Super Admin audit logging, and system analytics.
 
 ---
 
 ## 🛠️ Technology Stack
 
 - **Framework**: Express 5 (ESM + Strict TypeScript)
-- **Database**: PostgreSQL with Prisma ORM
+- **Security**: Helmet HTTP headers, Express Rate Limiting, CORS origin restriction
+- **Database**: PostgreSQL with Prisma ORM (Committed SQL Migrations)
 - **Authentication**: JWT (Access & Refresh tokens), Cookie & Bearer headers, Google OAuth ID Token verification
-- **Validation**: Zod (Strict schema validation for Body, Params, and Query)
+- **Validation**: Zod (Strict schema validation for Body, Params, and Query with `sortBy` sanitization)
 - **Payment Gateway**: Real bKash Tokenized Checkout Integration
-- **Caching**: Redis with in-memory fallback
+- **Caching**: ioredis Client with graceful in-memory fallback
+- **Testing**: Vitest automated test suite (`npm test`)
 - **Code Quality**: Biome format & linting
 
 ---
@@ -93,10 +102,13 @@ BKASH_CALLBACK_URL=http://localhost:5000/api/v1/payments/bkash/callback
 npm install
 
 # Run database migrations
-npx prisma migrate dev --schema=prisma/schema
+npx prisma migrate deploy --schema=prisma/schema
 
 # Seed demo database accounts & catalog
 npm run seed
+
+# Run automated test suite
+npm test
 
 # Run in development mode
 npm run dev

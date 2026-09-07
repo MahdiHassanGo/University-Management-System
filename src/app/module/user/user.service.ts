@@ -1,6 +1,7 @@
 import type { UserStatus } from "@prisma/client";
 import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
+import { AuditLogService } from "../auditLog/auditLog.service.js";
 
 const updateUserStatusInDB = async (userId: string, status: UserStatus) => {
   const user = await prisma.user.findUnique({
@@ -22,6 +23,14 @@ const updateUserStatusInDB = async (userId: string, status: UserStatus) => {
       provider: true,
       updatedAt: true,
     },
+  });
+
+  await AuditLogService.createAuditLog({
+    actorId: userId,
+    action: "USER_STATUS_UPDATED",
+    entityType: "USER",
+    entityId: userId,
+    metadata: { status },
   });
 
   return updatedUser;

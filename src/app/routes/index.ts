@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AttendanceRoutes } from "../module/attendance/attendance.route.js";
+import { AuditLogRoutes } from "../module/auditLog/auditLog.route.js";
 import { AuthRoutes } from "../module/auth/auth.route.js";
 import { CourseRoutes } from "../module/course/course.route.js";
 import { DepartmentRoutes } from "../module/department/department.route.js";
@@ -24,6 +25,10 @@ const moduleRoutes = [
   {
     path: "/auth",
     route: AuthRoutes,
+  },
+  {
+    path: "/audit-logs",
+    route: AuditLogRoutes,
   },
   {
     path: "/users",

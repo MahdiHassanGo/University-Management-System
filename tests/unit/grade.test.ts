@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { calculateGradeAndPoint } from "../../src/app/utils/calculateGrade.js";
 
 describe("Academic Logic Unit Tests", () => {

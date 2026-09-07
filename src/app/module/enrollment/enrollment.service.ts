@@ -216,6 +216,17 @@ const enrollCourseInDB = async (userId: string, payload: ICreateEnrollmentPayloa
       },
     });
 
+    // Create Audit Log
+    await tx.auditLog.create({
+      data: {
+        actorId: userId,
+        action: "ENROLLMENT_CREATED",
+        entityType: "ENROLLMENT",
+        entityId: enrollment.id,
+        metadata: { sectionId: section.id, courseCode: section.course.code },
+      },
+    });
+
     return enrollment;
   });
 
@@ -282,6 +293,17 @@ const dropCourseInDB = async (userId: string, role: string, enrollmentId: string
         title: "Course Dropped",
         message: `You have dropped ${enrollment.section.course.code} Section ${enrollment.section.sectionNumber}`,
         relatedEntityId: enrollment.id,
+      },
+    });
+
+    // Create Audit Log
+    await tx.auditLog.create({
+      data: {
+        actorId: userId,
+        action: "COURSE_DROPPED",
+        entityType: "ENROLLMENT",
+        entityId: enrollment.id,
+        metadata: { sectionId: enrollment.sectionId },
       },
     });
 

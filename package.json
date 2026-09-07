@@ -11,6 +11,7 @@
     "deploy": "prisma migrate deploy --schema=prisma/schema && node dist/server.js",
     "postinstall": "prisma generate --schema=prisma/schema",
     "seed": "tsx src/app/utils/seed.ts",
+    "test": "vitest run",
     "lint:check": "biome check .",
     "lint:fix": "biome check --write .",
     "format:check": "biome format .",
@@ -28,7 +29,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^5.0.0",
+    "express-rate-limit": "^8.7.0",
     "google-auth-library": "^11.0.2",
+    "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "zod": "^3.23.8"
   },
@@ -38,11 +42,13 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/ioredis": "^4.28.10",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.5.4",
     "prisma": "^5.22.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^5.0.0"
   },
   "prisma": {
     "seed": "tsx src/app/utils/seed.ts"

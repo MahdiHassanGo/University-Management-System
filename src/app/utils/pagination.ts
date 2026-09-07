@@ -28,7 +28,8 @@ export const calculatePagination = (options: IPaginationOptions): ICalculatedPag
   const limit = Math.max(1, Math.min(100, Number(options.limit) || 10));
   const skip = (page - 1) * limit;
 
-  const sortBy = options.sortBy || "createdAt";
+  const sortBy =
+    options.sortBy && /^[a-zA-Z0-9_]+$/.test(options.sortBy) ? options.sortBy : "createdAt";
   const sortOrder = options.sortOrder === "asc" ? "asc" : "desc";
 
   return {

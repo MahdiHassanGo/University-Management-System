@@ -27,6 +27,15 @@ const envSchema = z.object({
   BKASH_PASSWORD: z.string().optional(),
   BKASH_URL: z.string().optional(),
   BKASH_CALLBACK_URL: z.string().optional(),
+  CORS_ORIGIN: z.string().optional().default("*"),
+  RATE_LIMIT_MAX: z
+    .string()
+    .default("100")
+    .transform((val) => Number.parseInt(val, 10)),
+  RATE_LIMIT_WINDOW_MS: z
+    .string()
+    .default("900000")
+    .transform((val) => Number.parseInt(val, 10)),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

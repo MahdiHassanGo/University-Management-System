@@ -45,34 +45,31 @@ const grantToken = async (): Promise<string> => {
   const username = config.BKASH_USERNAME;
   const password = config.BKASH_PASSWORD;
 
-  // Sandbox fallback when placeholders are configured
-  if (!appKey || appKey.includes("placeholder")) {
-    return "mock_bkash_id_token_12345";
+  if (!appKey || !appSecret || !username || !password || appKey.includes("placeholder")) {
+    throw new AppError(
+      500,
+      "bKash gateway credentials (BKASH_APP_KEY, BKASH_APP_SECRET, etc.) are unconfigured or invalid.",
+    );
   }
 
-  try {
-    const res = await fetch(`${bkashUrl}/tokenized/checkout/token/grant`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        username: username || "",
-        password: password || "",
-      },
-      body: JSON.stringify({
-        app_key: appKey,
-        app_secret: appSecret,
-      }),
-    });
+  const res = await fetch(`${bkashUrl}/tokenized/checkout/token/grant`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      username,
+      password,
+    },
+    body: JSON.stringify({
+      app_key: appKey,
+      app_secret: appSecret,
+    }),
+  });
 
-    const data = (await res.json()) as IBkashGrantTokenResponse;
-    if (!data.id_token) {
-      throw new AppError(500, "Failed to authenticate with bKash payment gateway");
-    }
-    return data.id_token;
-  } catch (error) {
-    if (error instanceof AppError) throw error;
-    return "mock_bkash_id_token_12345";
+  const data = (await res.json()) as IBkashGrantTokenResponse;
+  if (!data.id_token) {
+    throw new AppError(500, "Failed to authenticate with bKash payment gateway");
   }
+  return data.id_token;
 };
 
 const createPayment = async (
@@ -83,23 +80,14 @@ const createPayment = async (
   const bkashUrl = getBkashBaseUrl();
   const appKey = config.BKASH_APP_KEY;
   const callbackUrl =
-    config.BKASH_CALLBACK_URL || "http://localhost:5000/api/v1/payments/bkash/callback";
+    config.BKASH_CALLBACK_URL ||
+    "https://university-management-system-mu-sage.vercel.app/api/v1/payments/bkash/callback";
 
   if (!appKey || appKey.includes("placeholder")) {
-    const paymentID = `TRX${Date.now()}`;
-    return {
-      paymentID,
-      bkashURL: `${callbackUrl}?paymentID=${paymentID}&status=success`,
-      callbackURL: callbackUrl,
-      amount: amount.toFixed(2),
-      currency: "BDT",
-      intent: "sale",
-      merchantInvoiceNumber,
-      paymentCreateTime: new Date().toISOString(),
-      transactionStatus: "Initiated",
-      statusCode: "0000",
-      statusMessage: "Successful",
-    };
+    throw new AppError(
+      500,
+      "bKash payment gateway configuration is missing or unconfigured.",
+    );
   }
 
   const idToken = await grantToken();
@@ -130,18 +118,11 @@ const executePayment = async (paymentID: string): Promise<IBkashExecutePaymentRe
   const bkashUrl = getBkashBaseUrl();
   const appKey = config.BKASH_APP_KEY;
 
-  if (!appKey || appKey.includes("placeholder") || paymentID.startsWith("TRX")) {
-    return {
-      paymentID,
-      trxID: `BKASH_${Date.now()}`,
-      transactionStatus: "Completed",
-      amount: "100.00",
-      currency: "BDT",
-      intent: "sale",
-      merchantInvoiceNumber: `INV-${Date.now()}`,
-      statusCode: "0000",
-      statusMessage: "Successful",
-    };
+  if (!appKey || appKey.includes("placeholder")) {
+    throw new AppError(
+      500,
+      "bKash payment gateway configuration is missing or unconfigured.",
+    );
   }
 
   const idToken = await grantToken();
