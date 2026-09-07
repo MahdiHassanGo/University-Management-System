@@ -120,7 +120,13 @@ const handleBkashCallbackInDB = async (query: IBkashCallbackQueryParams) => {
   // Verify and execute server-side with bKash API
   const bkashExecRes = await BkashService.executePayment(payment.bkashPaymentID || paymentID);
 
-  if (bkashExecRes.statusCode !== "0000" && bkashExecRes.transactionStatus !== "Completed") {
+  const isCompleted =
+    bkashExecRes.statusCode === "0000" ||
+    bkashExecRes.transactionStatus === "Completed" ||
+    bkashExecRes.statusMessage?.toLowerCase().includes("already been called") ||
+    bkashExecRes.statusMessage?.toLowerCase().includes("already completed");
+
+  if (!isCompleted) {
     await prisma.payment.update({
       where: { id: payment.id },
       data: {
@@ -134,7 +140,7 @@ const handleBkashCallbackInDB = async (query: IBkashCallbackQueryParams) => {
   // Transactional update: Mark payment PAID, mark invoice PAID, create notification
   const finalResult = await prisma.$transaction(
     async (tx) => {
-      const trxID = bkashExecRes.trxID || `TRX_${Date.now()}`;
+      const trxID = bkashExecRes.trxID || payment.trxID || `TRX_${Date.now()}`;
 
       const updatedPayment = await tx.payment.update({
         where: { id: payment.id },
