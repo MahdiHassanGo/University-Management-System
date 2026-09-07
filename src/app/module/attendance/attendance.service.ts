@@ -91,13 +91,26 @@ const bulkMarkAttendanceInDB = async (
       sectionId: session.sectionId,
       status: "ENROLLED",
     },
-    select: { studentId: true },
+    include: {
+      student: {
+        select: {
+          id: true,
+          studentId: true,
+          userId: true,
+        },
+      },
+    },
   });
 
-  const enrolledStudentIds = new Set(enrollments.map((e) => e.studentId));
+  const studentIdMap = new Map<string, string>();
+  for (const e of enrollments) {
+    studentIdMap.set(e.student.id, e.student.id);
+    if (e.student.studentId) studentIdMap.set(e.student.studentId, e.student.id);
+    if (e.student.userId) studentIdMap.set(e.student.userId, e.student.id);
+  }
 
   for (const rec of payload.records) {
-    if (!enrolledStudentIds.has(rec.studentId)) {
+    if (!studentIdMap.has(rec.studentId)) {
       throw new AppError(
         400,
         `Student with ID '${rec.studentId}' is not actively enrolled in this section`,
@@ -109,16 +122,17 @@ const bulkMarkAttendanceInDB = async (
     async (tx) => {
       const records = [];
       for (const rec of payload.records) {
+        const actualStudentId = studentIdMap.get(rec.studentId) as string;
         const record = await tx.attendanceRecord.upsert({
           where: {
             sessionId_studentId: {
               sessionId,
-              studentId: rec.studentId,
+              studentId: actualStudentId,
             },
           },
           create: {
             sessionId,
-            studentId: rec.studentId,
+            studentId: actualStudentId,
             status: rec.status,
             note: rec.note,
           },
@@ -134,7 +148,10 @@ const bulkMarkAttendanceInDB = async (
       }
       return records;
     },
-    { maxWait: 5000, timeout: 20000 },
+    {
+      maxWait: 5000,
+      timeout: 20000,
+    },
   );
 
   return result;
