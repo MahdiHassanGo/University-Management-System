@@ -16,6 +16,11 @@
     "format:check": "biome format .",
     "format:fix": "biome check --write ."
   },
+  "allowScripts": {
+    "prisma": true,
+    "@prisma/engines": true,
+    "esbuild": true
+  },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
