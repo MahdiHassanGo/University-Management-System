@@ -2,9 +2,16 @@ import { z } from "zod";
 
 const attendanceStatusEnum = z.enum(["PRESENT", "ABSENT", "LATE", "EXCUSED"]);
 
+const isValidDateString = (val: string) => !Number.isNaN(Date.parse(val));
+
+const dateSchema = (fieldName: string) =>
+  z.string().refine(isValidDateString, {
+    message: `${fieldName} must be a valid date string (e.g. YYYY-MM-DD or ISO 8601)`,
+  });
+
 const createAttendanceSessionValidationSchema = z.object({
   body: z.object({
-    heldAt: z.string().datetime("heldAt must be a valid ISO date string"),
+    heldAt: dateSchema("heldAt"),
     topic: z.string().optional(),
   }),
 });

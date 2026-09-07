@@ -2,6 +2,16 @@ import { z } from "zod";
 
 const examStatusEnum = z.enum(["DRAFT", "PUBLISHED", "COMPLETED"]);
 
+const isValidDateString = (val: string) => !Number.isNaN(Date.parse(val));
+
+const optionalDateSchema = (fieldName: string) =>
+  z
+    .string()
+    .refine(isValidDateString, {
+      message: `${fieldName} must be a valid date string (e.g. YYYY-MM-DD or ISO 8601)`,
+    })
+    .optional();
+
 const createExamValidationSchema = z.object({
   body: z.object({
     title: z.string().min(1, "Title is required"),
@@ -10,7 +20,7 @@ const createExamValidationSchema = z.object({
       .number()
       .positive("weightPercentage must be positive")
       .max(100, "weightPercentage cannot exceed 100"),
-    heldAt: z.string().datetime().optional(),
+    heldAt: optionalDateSchema("heldAt"),
     status: examStatusEnum.optional(),
   }),
 });
@@ -21,7 +31,7 @@ const updateExamValidationSchema = z.object({
       title: z.string().min(1).optional(),
       totalMarks: z.number().positive().optional(),
       weightPercentage: z.number().positive().max(100).optional(),
-      heldAt: z.string().datetime().optional(),
+      heldAt: optionalDateSchema("heldAt"),
       status: examStatusEnum.optional(),
     })
     .refine((data) => Object.keys(data).length > 0, {
