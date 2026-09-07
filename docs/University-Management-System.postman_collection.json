@@ -26,43 +26,191 @@
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5000", "type": "string" },
-    { "key": "adminEmail", "value": "admin@university.edu", "type": "string" },
-    { "key": "adminPassword", "value": "Admin123!", "type": "string" },
-    { "key": "instructorEmail", "value": "instructor@university.edu", "type": "string" },
-    { "key": "instructorPassword", "value": "Instructor123!", "type": "string" },
-    { "key": "studentEmail", "value": "student@university.edu", "type": "string" },
-    { "key": "studentPassword", "value": "Student123!", "type": "string" },
-    { "key": "googleIdToken", "value": "PASTE_A_REAL_GOOGLE_ID_TOKEN_HERE", "type": "string" },
-    { "key": "adminToken", "value": "", "type": "string" },
-    { "key": "instructorToken", "value": "", "type": "string" },
-    { "key": "studentToken", "value": "", "type": "string" },
-    { "key": "runSuffix", "value": "", "type": "string" },
-    { "key": "seedDepartmentId", "value": "", "type": "string" },
-    { "key": "createdDepartmentId", "value": "", "type": "string" },
-    { "key": "seedProgramId", "value": "", "type": "string" },
-    { "key": "createdProgramId", "value": "", "type": "string" },
-    { "key": "semesterId", "value": "", "type": "string" },
-    { "key": "seedInstructorId", "value": "", "type": "string" },
-    { "key": "studentId", "value": "", "type": "string" },
-    { "key": "studentUserId", "value": "", "type": "string" },
-    { "key": "courseId", "value": "", "type": "string" },
-    { "key": "prerequisiteCourseId", "value": "", "type": "string" },
-    { "key": "sectionId", "value": "", "type": "string" },
-    { "key": "enrollmentId", "value": "", "type": "string" },
-    { "key": "attendanceSessionId", "value": "", "type": "string" },
-    { "key": "attendanceRecordId", "value": "", "type": "string" },
-    { "key": "examId", "value": "", "type": "string" },
-    { "key": "invoiceId", "value": "", "type": "string" },
-    { "key": "paymentId", "value": "", "type": "string" },
-    { "key": "bkashPaymentID", "value": "", "type": "string" },
-    { "key": "notificationId", "value": "", "type": "string" },
-    { "key": "unknownUuid", "value": "00000000-0000-4000-8000-000000000000", "type": "string" },
-    { "key": "registrationStart", "value": "", "type": "string" },
-    { "key": "registrationEnd", "value": "", "type": "string" },
-    { "key": "classStart", "value": "", "type": "string" },
-    { "key": "classEnd", "value": "", "type": "string" },
-    { "key": "attendanceHeldAt", "value": "", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@university.edu",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin123!",
+      "type": "string"
+    },
+    {
+      "key": "instructorEmail",
+      "value": "instructor@university.edu",
+      "type": "string"
+    },
+    {
+      "key": "instructorPassword",
+      "value": "Instructor123!",
+      "type": "string"
+    },
+    {
+      "key": "studentEmail",
+      "value": "student@university.edu",
+      "type": "string"
+    },
+    {
+      "key": "studentPassword",
+      "value": "Student123!",
+      "type": "string"
+    },
+    {
+      "key": "googleIdToken",
+      "value": "PASTE_A_REAL_GOOGLE_ID_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "instructorToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "runSuffix",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "seedDepartmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "createdDepartmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "seedProgramId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "createdProgramId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "semesterId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "seedInstructorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "prerequisiteCourseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sectionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attendanceSessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attendanceRecordId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "examId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invoiceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bkashPaymentID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unknownUuid",
+      "value": "00000000-0000-4000-8000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "registrationStart",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "registrationEnd",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "classStart",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "classEnd",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attendanceHeldAt",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -911,7 +1059,15 @@
                   "",
                   "pm.test(\"Expected HTTP status: 201\", function () {",
                   "  pm.expect([201]).to.include(pm.response.code);",
-                  "});"
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const userId = json.data && (json.data.userId || (json.data.user && json.data.user.id) || json.data.id);",
+                  "  const studentId = json.data && (json.data.id || json.data.studentId);",
+                  "  if (userId) pm.environment.set(\"studentUserId\", userId);",
+                  "  if (studentId) pm.environment.set(\"studentId\", studentId);",
+                  "} catch (_) {}"
                 ]
               }
             }
@@ -1136,7 +1292,15 @@
                   "",
                   "pm.test(\"Expected HTTP status: 201\", function () {",
                   "  pm.expect([201]).to.include(pm.response.code);",
-                  "});"
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const userId = json.data && (json.data.userId || (json.data.user && json.data.user.id) || json.data.id);",
+                  "  const studentId = json.data && (json.data.id || json.data.studentId);",
+                  "  if (userId) pm.environment.set(\"studentUserId\", userId);",
+                  "  if (studentId) pm.environment.set(\"studentId\", studentId);",
+                  "} catch (_) {}"
                 ]
               }
             }
@@ -1406,7 +1570,13 @@
                   "",
                   "pm.test(\"Expected HTTP status: 201\", function () {",
                   "  pm.expect([201]).to.include(pm.response.code);",
-                  "});"
+                  "});",
+                  "",
+                  "try {",
+                  "  const json = pm.response.json();",
+                  "  const value = json.data && json.data.id;",
+                  "  if (value) pm.environment.set(\"seedInstructorId\", value);",
+                  "} catch (_) {}"
                 ]
               }
             }
