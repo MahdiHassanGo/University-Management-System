@@ -6,6 +6,8 @@ export interface IBkashGrantTokenResponse {
   token_type: string;
   expires_in: number;
   refresh_token: string;
+  statusMessage?: string;
+  statusCode?: string;
 }
 
 export interface IBkashCreatePaymentResponse {
@@ -38,6 +40,36 @@ const getBkashBaseUrl = () => {
   return config.BKASH_URL || "https://tokenized.sandbox.bka.sh/v1.2.0-beta";
 };
 
+const safeParseResponse = async <T>(res: Response, endpointName: string): Promise<T> => {
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch (_e) {
+    try {
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: sanitize control characters from external gateway HTTP responses
+      const sanitized = text.replace(/[\x00-\x1F\x7F]/g, (match) => {
+        switch (match) {
+          case "\n":
+            return "\\n";
+          case "\r":
+            return "\\r";
+          case "\t":
+            return "\\t";
+          default:
+            return "";
+        }
+      });
+      return JSON.parse(sanitized) as T;
+    } catch (_e2) {
+      const snippet = text.slice(0, 250).replace(/[\r\n]+/g, " ");
+      throw new AppError(
+        502,
+        `bKash payment gateway (${endpointName}) returned invalid response (Status ${res.status}): ${snippet}`,
+      );
+    }
+  }
+};
+
 const grantToken = async (): Promise<string> => {
   const bkashUrl = getBkashBaseUrl();
   const appKey = config.BKASH_APP_KEY;
@@ -65,9 +97,12 @@ const grantToken = async (): Promise<string> => {
     }),
   });
 
-  const data = (await res.json()) as IBkashGrantTokenResponse;
+  const data = await safeParseResponse<IBkashGrantTokenResponse>(res, "grantToken");
   if (!data.id_token) {
-    throw new AppError(500, "Failed to authenticate with bKash payment gateway");
+    throw new AppError(
+      500,
+      `Failed to authenticate with bKash payment gateway: ${data.statusMessage || "id_token missing"}`,
+    );
   }
   return data.id_token;
 };
@@ -107,7 +142,7 @@ const createPayment = async (
     }),
   });
 
-  const data = (await res.json()) as IBkashCreatePaymentResponse;
+  const data = await safeParseResponse<IBkashCreatePaymentResponse>(res, "createPayment");
   return data;
 };
 
@@ -133,7 +168,7 @@ const executePayment = async (paymentID: string): Promise<IBkashExecutePaymentRe
     }),
   });
 
-  const data = (await res.json()) as IBkashExecutePaymentResponse;
+  const data = await safeParseResponse<IBkashExecutePaymentResponse>(res, "executePayment");
   return data;
 };
 
