@@ -39,4 +39,6 @@ router.patch(
   SemesterController.updateSemesterStatus,
 );
 
+router.delete("/:id", checkAuth("SUPER_ADMIN"), SemesterController.deleteSemester);
+
 export const SemesterRoutes = router;

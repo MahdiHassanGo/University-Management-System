@@ -174,10 +174,47 @@ const updateSemesterStatusInDB = async (id: string, status: SemesterStatus) => {
   return updatedSemester;
 };
 
+const deleteSemesterFromDB = async (id: string) => {
+  const semester = await prisma.academicSemester.findUnique({
+    where: { id },
+    include: {
+      _count: {
+        select: {
+          sections: true,
+          students: true,
+          invoices: true,
+        },
+      },
+    },
+  });
+
+  if (!semester) {
+    throw new AppError(404, "Academic semester not found");
+  }
+
+  if (
+    semester._count.sections > 0 ||
+    semester._count.students > 0 ||
+    semester._count.invoices > 0
+  ) {
+    throw new AppError(
+      400,
+      "Cannot delete academic semester with associated sections, students, or invoices.",
+    );
+  }
+
+  const result = await prisma.academicSemester.delete({
+    where: { id },
+  });
+
+  return result;
+};
+
 export const SemesterService = {
   createSemesterInDB,
   getAllSemestersFromDB,
   getSemesterByIdFromDB,
   updateSemesterInDB,
   updateSemesterStatusInDB,
+  deleteSemesterFromDB,
 };
