@@ -107,7 +107,7 @@ async function run() {
     update: {
       status: "REGISTRATION_OPEN",
       registrationStart: new Date("2026-08-15T00:00:00.000Z"),
-      registrationEnd: new Date("2026-09-15T23:59:59.000Z"),
+      registrationEnd: new Date("2026-12-31T23:59:59.000Z"),
       classStart: new Date("2026-09-20T00:00:00.000Z"),
       classEnd: new Date("2026-12-24T23:59:59.000Z"),
     },
@@ -116,7 +116,7 @@ async function run() {
       term: "FALL",
       status: "REGISTRATION_OPEN",
       registrationStart: new Date("2026-08-15T00:00:00.000Z"),
-      registrationEnd: new Date("2026-09-15T23:59:59.000Z"),
+      registrationEnd: new Date("2026-12-31T23:59:59.000Z"),
       classStart: new Date("2026-09-20T00:00:00.000Z"),
       classEnd: new Date("2026-12-24T23:59:59.000Z"),
     },
