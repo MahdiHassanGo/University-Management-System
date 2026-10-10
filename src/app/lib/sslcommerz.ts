@@ -35,17 +35,22 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   }
 }
 export const SslCommerzService = {
-  async createSession(input: { transactionId: string; amount: number; name: string; email: string; phone?: string }) {
-    const { storeId, storePass, backendUrl } = getSslConfig();
+  async createSession(input: { transactionId: string; amount: number; name: string; email: string; phone?: string; frontendUrl?: string }) {
+    const { storeId, storePass, backendUrl, frontendUrl: defaultFrontendUrl } = getSslConfig();
+    const effectiveFrontend = (input.frontendUrl || defaultFrontendUrl).replace(/\/$/, "");
     const callback = `${backendUrl}/api/v1/payments/sslcommerz`;
+    const callbackWithOrigin = `${callback}/callback/success?origin=${encodeURIComponent(effectiveFrontend)}`;
+    const failWithOrigin = `${callback}/callback/fail?origin=${encodeURIComponent(effectiveFrontend)}`;
+    const cancelWithOrigin = `${callback}/callback/cancel?origin=${encodeURIComponent(effectiveFrontend)}`;
     const params = new URLSearchParams({
       store_id: storeId, store_passwd: storePass, total_amount: input.amount.toFixed(2),
       currency: "BDT", tran_id: input.transactionId,
-      success_url: `${callback}/callback/success`, fail_url: `${callback}/callback/fail`,
-      cancel_url: `${callback}/callback/cancel`, ipn_url: `${callback}/ipn`,
+      success_url: callbackWithOrigin, fail_url: failWithOrigin,
+      cancel_url: cancelWithOrigin, ipn_url: `${callback}/ipn`,
       shipping_method: "NO", product_name: "University tuition fee", product_category: "Education",
       product_profile: "non-physical-goods", cus_name: input.name, cus_email: input.email,
       cus_phone: input.phone || "", cus_add1: "University campus", cus_city: "Dhaka", cus_country: "Bangladesh",
+      value_a: effectiveFrontend,
     });
     const result = await request<SslSession>(`${BASE}/gwprocess/v4/api.php`, {
       method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params.toString(),

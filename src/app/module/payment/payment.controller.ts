@@ -6,7 +6,25 @@ import { PaymentService } from "./payment.service.js";
 
 const initiatePayment = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.userId as string;
-  const result = await PaymentService.initiatePaymentInDB(userId, req.body);
+  const headerOrigin = req.headers["x-frontend-origin"] as string | undefined;
+  let refererOrigin: string | undefined;
+  if (req.headers.referer) {
+    try {
+      refererOrigin = new URL(req.headers.referer).origin;
+    } catch {
+      /* ignore invalid referer */
+    }
+  }
+  const frontendUrl =
+    req.body?.frontendUrl ||
+    headerOrigin ||
+    (typeof req.headers.origin === "string" ? req.headers.origin : undefined) ||
+    refererOrigin;
+
+  const result = await PaymentService.initiatePaymentInDB(userId, {
+    ...req.body,
+    frontendUrl,
+  });
 
   sendResponse(res, {
     statusCode: 200,
@@ -63,21 +81,37 @@ const getPaymentById = catchAsync(async (req: Request, res: Response) => {
 const sslPayload = (req: Request) => ({
   tran_id: typeof req.body?.tran_id === "string" ? req.body.tran_id : undefined,
   val_id: typeof req.body?.val_id === "string" ? req.body.val_id : undefined,
+  frontendOrigin:
+    (typeof req.query?.origin === "string" ? req.query.origin : undefined) ||
+    (typeof req.body?.value_a === "string" ? req.body.value_a : undefined),
 });
+
 const handleSslCallback = catchAsync(async (req: Request, res: Response) => {
-  const destination = new URL("/payment/cancel", config.FRONTEND_URL || "http://localhost:3000");
+  const payload = sslPayload(req);
+  const targetFrontend =
+    payload.frontendOrigin || config.FRONTEND_URL || "http://localhost:3000";
+  const destination = new URL("/payment/cancel", targetFrontend);
   try {
-    const payment = await PaymentService.handleSslCallbackInDB(sslPayload(req));
-    destination.pathname = payment.status === "FAILED" || payment.status === "CANCELLED" ? "/payment/cancel" : "/payment/success";
+    const payment = await PaymentService.handleSslCallbackInDB(payload);
+    destination.pathname =
+      payment.status === "FAILED" || payment.status === "CANCELLED"
+        ? "/payment/cancel"
+        : "/payment/success";
     destination.searchParams.set("paymentId", payment.id);
   } catch {
     destination.searchParams.set("status", "unverified");
   }
   res.redirect(303, destination.toString());
 });
+
 const handleSslIpn = catchAsync(async (req: Request, res: Response) => {
   const payment = await PaymentService.handleSslCallbackInDB(sslPayload(req));
-  sendResponse(res, { statusCode: 200, success: true, message: "Payment notification verified", data: { paymentId: payment.id, status: payment.status } });
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Payment notification verified",
+    data: { paymentId: payment.id, status: payment.status },
+  });
 });
 
 export const PaymentController = {

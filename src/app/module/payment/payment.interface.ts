@@ -1,5 +1,6 @@
 export interface IInitiatePaymentPayload {
   invoiceId: string;
+  frontendUrl?: string;
 }
 
 export interface IBkashCallbackQueryParams {

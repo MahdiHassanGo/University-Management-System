@@ -46,7 +46,7 @@ const initiatePaymentInDB = async (userId: string, payload: IInitiatePaymentPayl
   if (!reserved.reused) {
     try {
       session = await SslCommerzService.createSession({ transactionId: payment.merchantInvoiceNumber, amount: payment.amount,
-        name: invoice.student.name, email: invoice.student.user.email, phone: invoice.student.contactNo ?? undefined });
+        name: invoice.student.name, email: invoice.student.user.email, phone: invoice.student.contactNo ?? undefined, frontendUrl: payload.frontendUrl });
       await prisma.payment.update({ where: { id: payment.id }, data: { gatewayResponse: session } });
     } catch (error) {
       // No valid hosted checkout was returned; retain a failed attempt instead of fabricating success.
