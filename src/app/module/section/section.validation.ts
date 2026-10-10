@@ -11,7 +11,7 @@ const scheduleSchema = z.object({
   startTime: z.string().regex(timeFormatRegex, "startTime must be in HH:mm format (e.g. 09:00)"),
   endTime: z.string().regex(timeFormatRegex, "endTime must be in HH:mm format (e.g. 10:30)"),
   room: z.string().min(1, "Room is required"),
-});
+}).refine(value=>value.startTime<value.endTime,{message:"Class end time must be after start time"});
 
 const sectionStatusEnum = z.enum(["DRAFT", "OPEN", "CLOSED", "COMPLETED"]);
 

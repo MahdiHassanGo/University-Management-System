@@ -31,7 +31,7 @@ const checkAuth = (...requiredRoles: Role[]) => {
       }
 
       const userId = verifiedUser.userId as string;
-      const role = verifiedUser.role as Role;
+      
 
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -49,7 +49,7 @@ const checkAuth = (...requiredRoles: Role[]) => {
         throw new AppError(403, "Your account has been deleted!");
       }
 
-      if (requiredRoles.length && !requiredRoles.includes(role)) {
+      if (requiredRoles.length && !requiredRoles.includes(user.role)) {
         throw new AppError(403, "Forbidden! You do not have permission to access this resource.");
       }
 

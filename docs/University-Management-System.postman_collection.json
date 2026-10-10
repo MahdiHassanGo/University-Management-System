@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "897b2858-9276-4e7e-8fd4-a6ad17000001",
-    "name": "University Management System API — Complete Assignment Test Collection",
+    "name": "University Management System API \u2014 Complete Assignment Test Collection",
     "description": "Import-ready audit collection for Assignment 6. Run `npm run seed`, start the API, then run folders in numeric order. The three login requests automatically save role tokens. Discovery and create requests automatically save IDs. The collection-level tests enforce the required `{ success, message, data|errors }` contract.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -210,6 +210,14 @@
       "key": "attendanceHeldAt",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "merchantTransactionId",
+      "value": ""
+    },
+    {
+      "key": "sslValidationId",
+      "value": ""
     }
   ],
   "item": [
@@ -497,7 +505,7 @@
           ]
         },
         {
-          "name": "Google Login — requires real Google ID token",
+          "name": "Google Login \u2014 requires real Google ID token",
           "request": {
             "method": "POST",
             "header": [
@@ -648,7 +656,7 @@
           ]
         },
         {
-          "name": "Change Password — manual only",
+          "name": "Change Password \u2014 manual only",
           "request": {
             "method": "POST",
             "header": [
@@ -2390,7 +2398,7 @@
           ]
         },
         {
-          "name": "Add Course Prerequisite — run after enrollment workflow",
+          "name": "Add Course Prerequisite \u2014 run after enrollment workflow",
           "request": {
             "method": "POST",
             "header": [
@@ -4147,7 +4155,7 @@
       ]
     },
     {
-      "name": "12 Fees and Real bKash Payment",
+      "name": "12 Fees and SSLCommerz Sandbox Payment",
       "description": "",
       "item": [
         {
@@ -4367,7 +4375,7 @@
           ]
         },
         {
-          "name": "Initiate Real bKash Payment and Save IDs",
+          "name": "Initiate SSLCommerz Sandbox Checkout and Save IDs",
           "request": {
             "method": "POST",
             "header": [
@@ -4378,7 +4386,7 @@
               }
             ],
             "url": "{{baseUrl}}/api/v1/payments/initiate",
-            "description": "For submission, this must call real bKash sandbox/production APIs. The current source returns fabricated success data when credentials are placeholders or requests fail.",
+            "description": "Requires configured sandbox merchant and a payable invoice belonging to the student. Returns a provider-hosted gatewayUrl. Missing credentials and gateway failures return errors; never simulated success.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -4405,118 +4413,13 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "",
-                  "pm.test(\"Response follows the required JSON contract\", function () {",
-                  "  pm.expect(pm.response.headers.get(\"Content-Type\") || \"\").to.include(\"application/json\");",
-                  "  const json = pm.response.json();",
-                  "  pm.expect(json).to.have.property(\"success\").that.is.a(\"boolean\");",
-                  "  pm.expect(json).to.have.property(\"message\");",
-                  "  if (json.success) {",
-                  "    pm.expect(json).to.have.property(\"data\");",
-                  "  } else {",
-                  "    pm.expect(json).to.have.property(\"errors\").that.is.an(\"array\");",
-                  "  }",
-                  "});",
-                  "",
-                  "pm.test(\"Expected HTTP status: 200\", function () {",
-                  "  pm.expect([200]).to.include(pm.response.code);",
-                  "});",
-                  "",
-                  "try {",
-                  "  const json = pm.response.json();",
-                  "  const value = json.data && json.data.paymentId;",
-                  "  if (value) pm.collectionVariables.set(\"paymentId\", value);",
-                  "} catch (_) { /* contract test reports invalid JSON */ }",
-                  "",
-                  "try {",
-                  "  const json = pm.response.json();",
-                  "  const value = json.data && json.data.paymentID;",
-                  "  if (value) pm.collectionVariables.set(\"bkashPaymentID\", value);",
-                  "} catch (_) { /* contract test reports invalid JSON */ }"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "bKash Success Callback — use only after real customer approval",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/payments/bkash/callback?paymentID={{bkashPaymentID}}&status=success",
-            "description": "Normally invoked by bKash after payment approval. Do not treat a locally fabricated callback as proof of real integration."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "",
-                  "pm.test(\"Response follows the required JSON contract\", function () {",
-                  "  pm.expect(pm.response.headers.get(\"Content-Type\") || \"\").to.include(\"application/json\");",
-                  "  const json = pm.response.json();",
-                  "  pm.expect(json).to.have.property(\"success\").that.is.a(\"boolean\");",
-                  "  pm.expect(json).to.have.property(\"message\");",
-                  "  if (json.success) {",
-                  "    pm.expect(json).to.have.property(\"data\");",
-                  "  } else {",
-                  "    pm.expect(json).to.have.property(\"errors\").that.is.an(\"array\");",
-                  "  }",
-                  "});",
-                  "",
-                  "pm.test(\"Expected HTTP status: 200 or 400\", function () {",
-                  "  pm.expect([200, 400]).to.include(pm.response.code);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "bKash Cancel Callback (POST variant)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{baseUrl}}/api/v1/payments/bkash/callback",
-            "description": "",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"paymentID\": \"{{bkashPaymentID}}\",\n  \"status\": \"cancel\",\n  \"apiVersion\": \"v1.2.0-beta\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "",
-                  "pm.test(\"Response follows the required JSON contract\", function () {",
-                  "  pm.expect(pm.response.headers.get(\"Content-Type\") || \"\").to.include(\"application/json\");",
-                  "  const json = pm.response.json();",
-                  "  pm.expect(json).to.have.property(\"success\").that.is.a(\"boolean\");",
-                  "  pm.expect(json).to.have.property(\"message\");",
-                  "  if (json.success) {",
-                  "    pm.expect(json).to.have.property(\"data\");",
-                  "  } else {",
-                  "    pm.expect(json).to.have.property(\"errors\").that.is.an(\"array\");",
-                  "  }",
-                  "});",
-                  "",
-                  "pm.test(\"Expected HTTP status: 200\", function () {",
-                  "  pm.expect([200]).to.include(pm.response.code);",
+                  "pm.test(\"Real hosted checkout was created\", function () {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.equal(true);",
+                  "  pm.expect(body.data.gatewayUrl).to.match(/^https:\\/\\/(?:[a-z0-9-]+\\.)?sslcommerz\\.com\\//);",
+                  "  pm.collectionVariables.set(\"paymentId\", body.data.paymentId);",
+                  "  pm.collectionVariables.set(\"merchantTransactionId\", body.data.merchantInvoiceNumber);",
                   "});"
                 ]
               }
@@ -4609,6 +4512,76 @@
                   "  pm.expect([200]).to.include(pm.response.code);",
                   "});"
                 ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SSLCommerz IPN \u2014 requires real gateway validation reference",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/payments/sslcommerz/ipn",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "tran_id",
+                  "value": "{{merchantTransactionId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "val_id",
+                  "value": "{{sslValidationId}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Normally called by SSLCommerz. For replay testing only, use the actual validated transaction references from the sandbox. Do not invent validation identifiers."
+          }
+        },
+        {
+          "name": "Legacy bKash callbacks (existing attempts only)",
+          "item": [
+            {
+              "name": "bKash Success Callback \u2014 use only after real customer approval",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/payments/bkash/callback?paymentID={{bkashPaymentID}}&status=success",
+                "description": "Legacy existing bKash attempts only. Browser callback status is not proof; gateway verification is required. Disable automatic redirect following when inspecting callback redirects."
+              }
+            },
+            {
+              "name": "bKash Cancel Callback (POST variant)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/payments/bkash/callback",
+                "description": "Legacy existing bKash attempts only. Browser callback status is not proof; gateway verification is required. Disable automatic redirect following when inspecting callback redirects.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"paymentID\": \"{{bkashPaymentID}}\",\n  \"status\": \"cancel\",\n  \"apiVersion\": \"v1.2.0-beta\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
               }
             }
           ]
@@ -4908,7 +4881,7 @@
       "description": "",
       "item": [
         {
-          "name": "401 — Missing Token",
+          "name": "401 \u2014 Missing Token",
           "request": {
             "method": "GET",
             "header": [],
@@ -4943,7 +4916,7 @@
           ]
         },
         {
-          "name": "403 — Student Cannot Create Department",
+          "name": "403 \u2014 Student Cannot Create Department",
           "request": {
             "method": "POST",
             "header": [
@@ -5003,7 +4976,7 @@
           ]
         },
         {
-          "name": "403 — Instructor Cannot Access Admin Reports",
+          "name": "403 \u2014 Instructor Cannot Access Admin Reports",
           "request": {
             "method": "GET",
             "header": [],
@@ -5048,7 +5021,7 @@
           ]
         },
         {
-          "name": "400 — Invalid Login Email",
+          "name": "400 \u2014 Invalid Login Email",
           "request": {
             "method": "POST",
             "header": [
@@ -5098,7 +5071,7 @@
           ]
         },
         {
-          "name": "404 — Unknown Course",
+          "name": "404 \u2014 Unknown Course",
           "request": {
             "method": "GET",
             "header": [],
@@ -5143,7 +5116,7 @@
           ]
         },
         {
-          "name": "400 — Invalid UUID Currently Not Validated",
+          "name": "400 \u2014 Invalid UUID Currently Not Validated",
           "request": {
             "method": "GET",
             "header": [],
@@ -5188,7 +5161,7 @@
           ]
         },
         {
-          "name": "400 — Empty PATCH Currently Accepted",
+          "name": "400 \u2014 Empty PATCH Currently Accepted",
           "request": {
             "method": "PATCH",
             "header": [

@@ -1,3 +1,5 @@
+> Historical backend implementation plan. New payment initiation now uses SSLCommerz sandbox; follow README.md and REVIEW_AND_SETUP.md for the updated behavior.
+
 # University Management System — Backend Implementation Plan
 
 ## 1. Project decision summary

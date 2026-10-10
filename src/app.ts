@@ -10,6 +10,7 @@ import notFound from "./app/middleware/notFound.js";
 import router from "./app/routes/index.js";
 
 const app: Application = express();
+app.set("trust proxy", 1);
 
 // biome-ignore lint/suspicious/noExplicitAny: ESM/CJS interop fallback
 const helmetFn = typeof helmet === "function" ? helmet : (helmet as any).default;

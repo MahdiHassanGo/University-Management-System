@@ -1,3 +1,4 @@
+import prisma from "../../lib/prisma.js";
 import type { SectionStatus } from "@prisma/client";
 import type { Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync.js";
@@ -23,6 +24,11 @@ const getAllSections = catchAsync(async (req: Request, res: Response) => {
     status: req.query.status as SectionStatus,
     searchTerm: req.query.searchTerm as string,
   };
+
+  if(req.user?.role==="INSTRUCTOR"){
+    const instructor=await prisma.instructor.findUnique({where:{userId:req.user.userId}});
+    filters.instructorId=instructor?.id || "no-assigned-profile";
+  }
 
   const options = {
     page: req.query.page as string,

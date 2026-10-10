@@ -2,20 +2,21 @@
   "name": "university-management-system-backend",
   "version": "1.0.0",
   "description": "University Management System Backend REST API",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "deploy": "prisma migrate deploy --schema=prisma/schema && node dist/server.js",
+    "start": "node dist/src/server.js",
+    "deploy": "prisma migrate deploy --schema=prisma/schema && node dist/src/server.js",
     "postinstall": "prisma generate --schema=prisma/schema",
     "seed": "tsx src/app/utils/seed.ts",
     "test": "vitest run",
     "lint:check": "biome check .",
     "lint:fix": "biome check --write .",
     "format:check": "biome format .",
-    "format:fix": "biome check --write ."
+    "format:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
   },
   "allowScripts": {
     "prisma": true,

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 import prisma from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
@@ -12,11 +13,7 @@ import type {
   IFeeInvoiceFilterOptions,
 } from "./fee.interface.js";
 
-const generateInvoiceNumber = async (): Promise<string> => {
-  const count = await prisma.feeInvoice.count();
-  const year = new Date().getFullYear();
-  return `INV${year}${String(count + 1).padStart(5, "0")}`;
-};
+const generateInvoiceNumber = () => `INV-${new Date().getFullYear()}-${randomUUID().replaceAll("-","").slice(0,16).toUpperCase()}`;
 
 const createFeeInvoiceInDB = async (payload: ICreateFeeInvoicePayload) => {
   const { studentId, semesterId, amount, dueDate } = payload;
@@ -33,7 +30,11 @@ const createFeeInvoiceInDB = async (payload: ICreateFeeInvoicePayload) => {
 
   const invoiceNumber = await generateInvoiceNumber();
 
-  const invoice = await prisma.feeInvoice.create({
+  const invoice = await prisma.$transaction(async tx => {
+    await tx.$queryRaw`SELECT id FROM academic_semesters WHERE id = ${semesterId} FOR UPDATE`;
+    const existing=await tx.feeInvoice.findFirst({where:{studentId,semesterId,status:{not:"CANCELLED"}}});
+    if(existing)throw new AppError(409,"This student already has a tuition invoice for this semester.");
+    return tx.feeInvoice.create({
     data: {
       invoiceNumber,
       studentId,
@@ -48,6 +49,7 @@ const createFeeInvoiceInDB = async (payload: ICreateFeeInvoicePayload) => {
     },
   });
 
+  });
   return invoice;
 };
 
@@ -70,12 +72,14 @@ const bulkCreateFeeInvoicesInDB = async (payload: IBulkCreateFeeInvoicePayload) 
   const createdInvoices = await prisma.$transaction(
     async (tx) => {
       const list = [];
-      const baseCount = await tx.feeInvoice.count();
-      const year = new Date().getFullYear();
+      await tx.$queryRaw`SELECT id FROM academic_semesters WHERE id = ${semesterId} FOR UPDATE`;
+      const existing=await tx.feeInvoice.findMany({where:{semesterId,status:{not:"CANCELLED"}},select:{studentId:true}});
+      const billed=new Set(existing.map(invoice=>invoice.studentId));
 
       for (let i = 0; i < students.length; i++) {
         const student = students[i];
-        const invoiceNumber = `INV${year}${String(baseCount + i + 1).padStart(5, "0")}`;
+        if(billed.has(student.id))continue;
+        const invoiceNumber=generateInvoiceNumber();
 
         const inv = await tx.feeInvoice.create({
           data: {

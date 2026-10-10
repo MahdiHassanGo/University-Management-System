@@ -130,9 +130,11 @@ const getStudentTranscriptFromDB = async (studentIdOrUserId: string, isUserId = 
   // Compute CGPA based on latest course attempts
   let totalCgpaPoints = 0;
   let totalCgpaCredits = 0;
+  let earnedCredits = 0;
 
   for (const attempt of latestCourseAttemptMap.values()) {
     totalCgpaCredits += attempt.credit;
+    if(attempt.gradePoint>=2)earnedCredits+=attempt.credit;
     totalCgpaPoints += attempt.credit * attempt.gradePoint;
   }
 
@@ -152,7 +154,7 @@ const getStudentTranscriptFromDB = async (studentIdOrUserId: string, isUserId = 
       admissionSemester: `${student.admissionSemester.term} ${student.admissionSemester.year}`,
     },
     cgpa,
-    totalEarnedCredits: totalCgpaCredits,
+    totalEarnedCredits: earnedCredits,
     semesters,
   };
 };

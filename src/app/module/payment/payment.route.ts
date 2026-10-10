@@ -6,7 +6,11 @@ import { PaymentValidation } from "./payment.validation.js";
 
 const router = Router();
 
-// Public callback routes for bKash
+// SSLCommerz sends URL-encoded POST callbacks and IPN messages. Verification happens server-side.
+router.post("/sslcommerz/callback/:outcome", PaymentController.handleSslCallback);
+router.post("/sslcommerz/ipn", PaymentController.handleSslIpn);
+
+// Public callback routes for existing bKash attempts
 router.get("/bkash/callback", PaymentController.handleBkashCallback);
 router.post("/bkash/callback", PaymentController.handleBkashCallback);
 

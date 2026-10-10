@@ -118,7 +118,7 @@ async function seed() {
     },
   });
 
-  await prisma.student.upsert({
+  const student = await prisma.student.upsert({
     where: { userId: studentUser.id },
     update: {},
     create: {
@@ -131,6 +131,8 @@ async function seed() {
     },
   });
   console.log("✔ Demo Student profile verified/created.");
+
+  await prisma.feeInvoice.upsert({where:{invoiceNumber:"DEMO-TUITION-2026"},update:{},create:{invoiceNumber:"DEMO-TUITION-2026",studentId:student.id,semesterId:semester.id,amount:100,dueDate:new Date(Date.now()+30*86400000),status:"UNPAID"}});
 
   console.log("Seeding completed successfully!");
 }

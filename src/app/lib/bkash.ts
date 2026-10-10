@@ -90,6 +90,7 @@ const grantToken = async (): Promise<string> => {
 
   const res = await fetch(`${bkashUrl}/tokenized/checkout/token/grant`, {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       "Content-Type": "application/json",
       username,
@@ -130,6 +131,7 @@ const createPayment = async (
 
   const res = await fetch(`${bkashUrl}/tokenized/checkout/create`, {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       "Content-Type": "application/json",
       Authorization: idToken,
@@ -162,6 +164,7 @@ const executePayment = async (paymentID: string): Promise<IBkashExecutePaymentRe
 
   const res = await fetch(`${bkashUrl}/tokenized/checkout/execute`, {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       "Content-Type": "application/json",
       Authorization: idToken,
@@ -176,7 +179,18 @@ const executePayment = async (paymentID: string): Promise<IBkashExecutePaymentRe
   return data;
 };
 
+const queryPayment = async (paymentID: string): Promise<IBkashExecutePaymentResponse> => {
+  const idToken = await grantToken();
+  const response = await fetch(`${getBkashBaseUrl()}/tokenized/checkout/payment/status`, {
+    method: "POST", signal: AbortSignal.timeout(15000),
+    headers: { "Content-Type": "application/json", Authorization: idToken, "X-APP-Key": config.BKASH_APP_KEY! },
+    body: JSON.stringify({ paymentID }),
+  });
+  return safeParseResponse<IBkashExecutePaymentResponse>(response, "queryPayment");
+};
+
 export const BkashService = {
+  queryPayment,
   createPayment,
   executePayment,
 };

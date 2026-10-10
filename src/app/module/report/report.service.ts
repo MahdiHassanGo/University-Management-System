@@ -148,7 +148,7 @@ const getFinanceReportFromDB = async (semesterId?: string) => {
 
   for (const item of statusAggregates) {
     const amt = item._sum.amount || 0;
-    totalBilledAmount += amt;
+    if(item.status!=="CANCELLED")totalBilledAmount += amt;
     if (item.status === "PAID") totalCollectedAmount += amt;
     else if (item.status === "UNPAID" || item.status === "OVERDUE") totalUnpaidAmount += amt;
   }

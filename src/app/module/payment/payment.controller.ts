@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import config from "../../config/index.js";
 import catchAsync from "../../utils/catchAsync.js";
 import sendResponse from "../../utils/sendResponse.js";
 import { PaymentService } from "./payment.service.js";
@@ -10,7 +11,7 @@ const initiatePayment = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Payment initiated successfully with bKash",
+    message: "Secure checkout initiated",
     data: result,
   });
 });
@@ -59,7 +60,29 @@ const getPaymentById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const sslPayload = (req: Request) => ({
+  tran_id: typeof req.body?.tran_id === "string" ? req.body.tran_id : undefined,
+  val_id: typeof req.body?.val_id === "string" ? req.body.val_id : undefined,
+});
+const handleSslCallback = catchAsync(async (req: Request, res: Response) => {
+  const destination = new URL("/payment/cancel", config.FRONTEND_URL || "http://localhost:3000");
+  try {
+    const payment = await PaymentService.handleSslCallbackInDB(sslPayload(req));
+    destination.pathname = payment.status === "FAILED" || payment.status === "CANCELLED" ? "/payment/cancel" : "/payment/success";
+    destination.searchParams.set("paymentId", payment.id);
+  } catch {
+    destination.searchParams.set("status", "unverified");
+  }
+  res.redirect(303, destination.toString());
+});
+const handleSslIpn = catchAsync(async (req: Request, res: Response) => {
+  const payment = await PaymentService.handleSslCallbackInDB(sslPayload(req));
+  sendResponse(res, { statusCode: 200, success: true, message: "Payment notification verified", data: { paymentId: payment.id, status: payment.status } });
+});
+
 export const PaymentController = {
+  handleSslCallback,
+  handleSslIpn,
   initiatePayment,
   handleBkashCallback,
   getMyPayments,

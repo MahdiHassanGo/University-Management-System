@@ -12,6 +12,7 @@ export type IGoogleUserPayload = {
 };
 
 export const verifyGoogleIdToken = async (idToken: string): Promise<IGoogleUserPayload> => {
+  if (!config.GOOGLE_CLIENT_ID) throw new AppError(503, "Google sign-in is not configured.");
   try {
     const ticket = await client.verifyIdToken({
       idToken,
@@ -22,6 +23,7 @@ export const verifyGoogleIdToken = async (idToken: string): Promise<IGoogleUserP
     if (!payload?.email || !payload.sub) {
       throw new AppError(401, "Invalid Google ID token payload");
     }
+    if (!payload.email_verified) throw new AppError(401, "Use a verified Google email address.");
 
     return {
       email: payload.email,

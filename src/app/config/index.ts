@@ -27,6 +27,10 @@ const envSchema = z.object({
   BKASH_PASSWORD: z.string().optional(),
   BKASH_URL: z.string().optional(),
   BKASH_CALLBACK_URL: z.string().optional(),
+  SSLCOMMERZ_STORE_ID: z.string().optional(),
+  SSLCOMMERZ_STORE_PASS: z.string().optional(),
+  BACKEND_URL: z.string().url().optional(),
+  FRONTEND_URL: z.string().url().optional(),
   CORS_ORIGIN: z.string().optional().default("*"),
   RATE_LIMIT_MAX: z
     .string()
