@@ -407,6 +407,29 @@ async function run() {
   }
   console.log("✔ University course catalog populated with real curricula.");
 
+  // Map courses to degree program curricula
+  const bscseCourses = ["CSE101", "CSE201", "CSE202", "CSE301", "CSE302", "CSE303", "CSE311", "CSE401", "EEE101", "EEE211", "MAT101", "ENG101"];
+  for (const cCode of bscseCourses) {
+    if (courseMap[cCode] && programMap["BSCSE"]) {
+      await prisma.programCourse.upsert({
+        where: {
+          programId_courseId: {
+            programId: programMap["BSCSE"].id,
+            courseId: courseMap[cCode].id,
+          },
+        },
+        update: {},
+        create: {
+          programId: programMap["BSCSE"].id,
+          courseId: courseMap[cCode].id,
+          recommendedSemester: 1,
+          isOptional: false,
+        },
+      });
+    }
+  }
+  console.log("✔ Degree program curricula mapped with core & elective courses.");
+
   // 7. REAL STUDENT PROFILES (Replacing Postman / Dummy names)
   const roster = [
     {
